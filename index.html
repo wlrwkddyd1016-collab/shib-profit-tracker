@@ -5,39 +5,171 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>시바이누 급등 코인 추종 시뮬레이터</title>
   <style>
-    /* 화면의 기본 글꼴과 여백을 깔끔하게 잡아줍니다 */
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      max-width: 600px;
+      max-width: 520px;
       margin: 40px auto;
       padding: 20px;
-      line-height: 1.6;
-      background-color: #f8fafc;
-      color: #1e293b;
+      background-color: #f1f5f9;
+      color: #0f172a;
     }
     .card {
-      background: white;
-      padding: 24px;
-      border-radius: 12px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      background: #ffffff;
+      padding: 28px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
     }
-    .tag {
-      display: inline-block;
-      background: #e0f2fe;
-      color: #0369a1;
-      padding: 4px 10px;
-      border-radius: 9999px;
+    h1 {
+      font-size: 20px;
+      margin-top: 0;
+      margin-bottom: 20px;
+      color: #1e293b;
+    }
+    .input-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
       font-size: 13px;
       font-weight: 600;
+      color: #64748b;
+      margin-bottom: 8px;
+    }
+    input[type="number"] {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px 14px;
+      font-size: 16px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input[type="number"]:focus {
+      border-color: #f97316; /* 시바이누를 상징하는 오렌지색 */
+    }
+    .info-box {
+      background: #fff7ed;
+      border: 1px solid #ffedd5;
+      padding: 16px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    .info-row:last-child {
+      margin-bottom: 0;
+    }
+    .highlight {
+      font-weight: 700;
+      color: #c2410c;
+    }
+    .btn {
+      width: 100%;
+      background: #f97316;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn:hover {
+      background: #ea580c;
+    }
+    .status-text {
+      text-align: center;
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 12px;
     }
   </style>
 </head>
 <body>
+
   <div class="card">
-    <span class="tag">배포 테스트 성공</span>
-    <h1>🐕 시바이누 급등 코인 추종 시뮬레이터</h1>
-    <p>웹사이트 기초 뼈대가 성공적으로 배포되었습니다.</p>
-    <p>다음 단계에서 업비트 실시간 시세 연동 및 수익률 비교 기능을 연결합니다.</p>
+    <h1>🐕 시바이누 자산 계산기</h1>
+
+    <!-- 1. 사용자가 시바이누 개수를 적는 칸 -->
+    <div class="input-group">
+      <label for="shibCount">보유한 시바이누(SHIB) 개수</label>
+      <input type="number" id="shibCount" value="10000000" step="1000" placeholder="예: 10000000">
+    </div>
+
+    <!-- 2. 시세와 계산 결과가 표시되는 영역 -->
+    <div class="info-box">
+      <div class="info-row">
+        <span>업비트 현재가</span>
+        <span id="shibPrice" class="highlight">조회 중...</span>
+      </div>
+      <div class="info-row">
+        <span>내 평가 금액</span>
+        <span id="totalValue" class="highlight">0 원</span>
+      </div>
+    </div>
+
+    <button class="btn" id="refreshBtn">시세 새로고침</button>
+    <div class="status-text" id="updatedTime">마지막 업데이트: -</div>
   </div>
+
+  <script>
+    // 화면의 주요 부품들을 자바스크립트 변수로 가져옵니다
+    const shibCountInput = document.getElementById('shibCount');
+    const shibPriceEl = document.getElementById('shibPrice');
+    const totalValueEl = document.getElementById('totalValue');
+    const updatedTimeEl = document.getElementById('updatedTime');
+    const refreshBtn = document.getElementById('refreshBtn');
+
+    let currentShibPrice = 0;
+
+    // [업비트 API] 시바이누 실시간 가격을 가져오는 함수
+    async function fetchShibPrice() {
+      try {
+        shibPriceEl.innerText = '가져오는 중...';
+        
+        // 업비트의 공식 무료 시세 API 호출 (KRW-SHIB)
+        const response = await fetch('https://api.upbit.com/v1/ticker?markets=KRW-SHIB');
+        const data = await response.json();
+        
+        // 업비트가 보내준 첫 번째 코인 정보에서 현재 체결가(trade_price) 추출
+        currentShibPrice = data[0].trade_price;
+
+        // 시바이누는 소수점 가격이므로 소수점 4자리까지 표시
+        shibPriceEl.innerText = `${currentShibPrice.toLocaleString(undefined, { minimumFractionDigits: 4 })} 원`;
+        
+        // 현재 시각 표시
+        const now = new Date();
+        updatedTimeEl.innerText = `마지막 업데이트: ${now.toLocaleTimeString()}`;
+
+        // 자산 재계산
+        calculateTotal();
+      } catch (error) {
+        console.error('시세 조회 실패:', error);
+        shibPriceEl.innerText = '조회 실패';
+      }
+    }
+
+    // 내 총 보유 금액을 계산하는 함수 (보유량 × 현재가)
+    function calculateTotal() {
+      const count = parseFloat(shibCountInput.value) || 0;
+      const total = Math.round(count * currentShibPrice);
+      totalValueEl.innerText = `${total.toLocaleString()} 원`;
+    }
+
+    // 이벤트 연결: 개수 입력값을 바꿀 때마다 즉각 계산
+    shibCountInput.addEventListener('input', calculateTotal);
+
+    // 이벤트 연결: 버튼 누르면 업비트 시세 다시 조회
+    refreshBtn.addEventListener('click', fetchShibPrice);
+
+    // 사이트가 처음 열리자마자 자동으로 한 번 실행
+    fetchShibPrice();
+  </script>
 </body>
 </html>
