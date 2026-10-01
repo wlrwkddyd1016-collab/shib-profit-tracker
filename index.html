@@ -13,6 +13,7 @@
       --text-sub: #94a3b8;
       --primary: #f59e0b;
       --accent: #10b981;
+      --danger: #ef4444;
       --up: #ef4444;
       --down: #3b82f6;
     }
@@ -110,7 +111,8 @@
       font-weight: 700;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
+      flex-wrap: wrap;
     }
 
     .exchange-badge {
@@ -134,7 +136,28 @@
       border: 1px solid rgba(249, 115, 22, 0.4);
     }
 
-    .coin-header-info span {
+    /* 교환 상태 뱃지 */
+    .status-pill {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .status-pill.available {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .status-pill.soldout {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.5);
+    }
+
+    .coin-header-info span.sub-desc {
       font-size: 12px;
       color: var(--text-sub);
     }
@@ -201,18 +224,27 @@
     .up { color: var(--up); }
     .down { color: var(--down); }
 
+    /* 교환 룰 박스 */
     .swap-box {
-      background: rgba(16, 185, 129, 0.08);
-      border: 1px solid rgba(16, 185, 129, 0.3);
       border-radius: 12px;
       padding: 16px;
       margin-top: 14px;
+      transition: all 0.3s ease;
+    }
+
+    .swap-box.available {
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .swap-box.soldout {
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.3);
     }
 
     .swap-box-title {
       font-size: 14px;
       font-weight: 700;
-      color: var(--accent);
       margin-bottom: 10px;
       display: flex;
       align-items: center;
@@ -226,6 +258,16 @@
       padding: 3px 10px;
       border-radius: 20px;
       border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+
+    .stock-indicator {
+      font-size: 12px;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
     .profit-summary {
@@ -243,6 +285,11 @@
       color: var(--up);
       margin-top: 4px;
       letter-spacing: -0.5px;
+    }
+
+    .profit-rate-value.locked {
+      color: #94a3b8;
+      text-decoration: line-through;
     }
 
     .profit-amount-text {
@@ -264,7 +311,7 @@
 
   <div class="header">
     <h1>🐕 시바이누 맞춤 교환 수익률 시뮬레이터</h1>
-    <p>업비트 & 빗썸 실시간 시세 연동 및 코인별 특수 교환비율 적용</p>
+    <p>실시간 교환 풀(Pool) 잔여 수량 실시간 모니터링</p>
   </div>
 
   <div class="container">
@@ -274,13 +321,13 @@
         <img class="coin-logo" src="https://static.upbit.com/logos/SHIB.png" alt="SHIB 로고" />
         <div class="coin-header-info">
           <h2>시바이누 (SHIB) <span class="exchange-badge upbit">업비트</span></h2>
-          <span>내 보유 기준 코인</span>
+          <span class="sub-desc">내 보유 기준 코인</span>
         </div>
       </div>
 
       <div class="field-group">
         <label class="field-label" for="shibCount">내 시바이누 보유 수량 (개)</label>
-        <input type="number" id="shibCount" class="input-box" value="100000" min="0" step="1000" />
+        <input type="number" id="shibCount" class="input-box" value="10000000" min="0" step="1000" />
       </div>
 
       <div class="info-box">
@@ -299,16 +346,17 @@
       </div>
     </div>
 
-    <!-- 오른쪽: 변경된 코인 목록 카드 -->
+    <!-- 오른쪽: 코인 목록 및 교환 현황 카드 -->
     <div class="card">
       <div class="card-title-row">
-        <img id="targetCoinLogo" class="coin-logo" src="https://static.upbit.com/logos/DOGE.png" alt="코인 로고" />
+        <img id="targetCoinLogo" class="coin-logo" src="https://static.upbit.com/logos/XLM.png" alt="코인 로고" />
         <div class="coin-header-info">
           <h2>
-            <span id="targetCoinTitle">도지코인 (DOGE)</span>
+            <span id="targetCoinTitle">스텔라루멘 (XLM)</span>
             <span id="targetExchangeBadge" class="exchange-badge upbit">업비트</span>
+            <span id="targetStatusPill" class="status-pill available">교환 가능</span>
           </h2>
-          <span>교환 대상 코인</span>
+          <span class="sub-desc" id="poolRemainingText">풀 잔여 수량: 14,250 XLM</span>
         </div>
       </div>
 
@@ -328,10 +376,10 @@
         </div>
       </div>
 
-      <!-- 맞춤 교환 룰 결과 -->
-      <div class="swap-box">
+      <!-- 교환 룰 & 풀 상태 박스 -->
+      <div class="swap-box available" id="swapBox">
         <div class="swap-box-title">
-          <span>🎁 확정 교환 룰 적용</span>
+          <span id="swapBoxTitleText">🎁 확정 교환 룰 적용</span>
           <span class="ratio-pill" id="swapRuleBadge">SHIB 1,000개 = 1개</span>
         </div>
         <div class="info-row">
@@ -342,39 +390,47 @@
           <span class="info-label">교환 후 총 자산 가치</span>
           <span class="info-value" style="color: #38bdf8; font-size: 16px;" id="targetTotalValue">0 원</span>
         </div>
+        <div class="stock-indicator">
+          <span class="info-label">교환 풀 잔여 상태</span>
+          <span class="info-value" id="stockStatusText" style="color: #10b981;">여유 있음 (즉시 교환 가능)</span>
+        </div>
       </div>
 
       <!-- 최종 기대 수익률 요약 -->
       <div class="profit-summary">
-        <div class="field-label" style="color: #cbd5e1; font-weight: 700;">교환 시 폭발적 기대 수익률</div>
+        <div class="field-label" style="color: #cbd5e1; font-weight: 700;" id="profitSummaryTitle">교환 시 폭발적 기대 수익률</div>
         <div class="profit-rate-value" id="profitRate">+0.0%</div>
         <div class="profit-amount-text" id="profitAmount">교환 즉시 차익 계산 중...</div>
       </div>
     </div>
   </div>
 
-  <div class="status-badge" id="updateStatus">🟢 실시간 시세 연동 중</div>
+  <div class="status-badge" id="updateStatus">🟢 실시간 시세 및 풀 연동 중</div>
 
   <script>
-    // 11개 코인 목록 및 재설정된 교환 비율 (1,000 기준)
+    // 코인 목록: status ('available': 교환 가능 / 'sold_out': 물량 소진 마감)
     const COIN_LIST = [
-      { 
-        exchange: "upbit", 
-        market: "KRW-DOGE", 
-        symbol: "DOGE", 
-        name: "도지코인", 
-        ratio: 1000, 
-        logo: "https://static.upbit.com/logos/DOGE.png",
-        fallbackPrice: 130
-      },
       { 
         exchange: "upbit", 
         market: "KRW-XLM", 
         symbol: "XLM", 
         name: "스텔라루멘", 
         ratio: 1000, 
+        status: "available",
+        remainingStock: 14250,
         logo: "https://static.upbit.com/logos/XLM.png",
         fallbackPrice: 312
+      },
+      { 
+        exchange: "upbit", 
+        market: "KRW-DOGE", 
+        symbol: "DOGE", 
+        name: "도지코인", 
+        ratio: 1000, 
+        status: "sold_out",
+        remainingStock: 0,
+        logo: "https://static.upbit.com/logos/DOGE.png",
+        fallbackPrice: 130
       },
       { 
         exchange: "bithumb", 
@@ -382,6 +438,8 @@
         symbol: "SOON", 
         name: "쑨", 
         ratio: 800, 
+        status: "sold_out",
+        remainingStock: 0,
         logo: "https://assets.coingecko.com/coins/images/38604/standard/soon.png",
         fallbackPrice: 320
       },
@@ -391,6 +449,8 @@
         symbol: "0G", 
         name: "제로지", 
         ratio: 1000, 
+        status: "available",
+        remainingStock: 5820,
         logo: "https://assets.coingecko.com/coins/images/39564/standard/0G.png",
         fallbackPrice: 420
       },
@@ -400,6 +460,8 @@
         symbol: "SOMI", 
         name: "솜니아", 
         ratio: 1200, 
+        status: "available",
+        remainingStock: 2190,
         logo: "https://assets.coingecko.com/coins/images/39620/standard/somnia.png",
         fallbackPrice: 510
       },
@@ -409,6 +471,8 @@
         symbol: "ADA", 
         name: "에이다", 
         ratio: 1500, 
+        status: "available",
+        remainingStock: 8640,
         logo: "https://static.upbit.com/logos/ADA.png",
         fallbackPrice: 620
       },
@@ -418,6 +482,8 @@
         symbol: "ARK", 
         name: "아크", 
         ratio: 1800, 
+        status: "available",
+        remainingStock: 1480,
         logo: "https://static.upbit.com/logos/ARK.png",
         fallbackPrice: 720
       },
@@ -427,6 +493,8 @@
         symbol: "ENA", 
         name: "에테나", 
         ratio: 2000, 
+        status: "available",
+        remainingStock: 3350,
         logo: "https://static.upbit.com/logos/ENA.png",
         fallbackPrice: 850
       },
@@ -436,6 +504,8 @@
         symbol: "ONDO", 
         name: "온도파이낸스", 
         ratio: 2500, 
+        status: "available",
+        remainingStock: 1920,
         logo: "https://static.upbit.com/logos/ONDO.png",
         fallbackPrice: 1150
       },
@@ -445,6 +515,8 @@
         symbol: "WLD", 
         name: "월드코인", 
         ratio: 3600, 
+        status: "sold_out",
+        remainingStock: 0,
         logo: "https://static.upbit.com/logos/WLD.png",
         fallbackPrice: 2850
       },
@@ -454,6 +526,8 @@
         symbol: "BERA", 
         name: "베라체인", 
         ratio: 5000, 
+        status: "sold_out",
+        remainingStock: 0,
         logo: "https://assets.coingecko.com/coins/images/35091/standard/berachain.png",
         fallbackPrice: 9500
       }
@@ -476,22 +550,32 @@
     const targetCoinLogo = document.getElementById("targetCoinLogo");
     const targetCoinTitle = document.getElementById("targetCoinTitle");
     const targetExchangeBadge = document.getElementById("targetExchangeBadge");
+    const targetStatusPill = document.getElementById("targetStatusPill");
+    const poolRemainingText = document.getElementById("poolRemainingText");
     const targetPriceEl = document.getElementById("targetPrice");
     const targetRate24hEl = document.getElementById("targetRate24h");
+
+    const swapBox = document.getElementById("swapBox");
+    const swapBoxTitleText = document.getElementById("swapBoxTitleText");
     const swapRuleBadge = document.getElementById("swapRuleBadge");
     const swappedQtyEl = document.getElementById("swappedQty");
     const targetTotalValueEl = document.getElementById("targetTotalValue");
+    const stockStatusText = document.getElementById("stockStatusText");
+
+    const profitSummaryTitle = document.getElementById("profitSummaryTitle");
     const profitRateEl = document.getElementById("profitRate");
     const profitAmountEl = document.getElementById("profitAmount");
     const updateStatusEl = document.getElementById("updateStatus");
 
-    // 옵션에 코인명과 심볼만 표시
+    // 드롭다운에 상태 이모지 및 마감 여부 표시
     function initCoinOptions() {
-      coinSelect.innerHTML = COIN_LIST.map((coin, index) => 
-        `<option value="${coin.market}" data-index="${index}">
-          ${coin.name} (${coin.symbol})
-        </option>`
-      ).join("");
+      coinSelect.innerHTML = COIN_LIST.map((coin, index) => {
+        const isAvailable = coin.status === "available";
+        const tag = isAvailable ? "🟢 [교환 가능]" : "🔴 [물량 소진/마감]";
+        return `<option value="${coin.market}" data-index="${index}">
+          ${tag} ${coin.name} (${coin.symbol})
+        </option>`;
+      }).join("");
     }
 
     const formatKRW = (num) => new Intl.NumberFormat('ko-KR').format(Math.round(num)) + ' 원';
@@ -510,6 +594,7 @@
       const shib = tickerCache["KRW-SHIB"] || { price: 0.0078, rate24h: 0 };
       const target = tickerCache[coin.market] || { price: coin.fallbackPrice, rate24h: 0 };
 
+      // 1. 헤더 정보 및 상태 뱃지 업데이트
       targetCoinLogo.src = coin.logo;
       targetCoinLogo.onerror = () => {
         targetCoinLogo.src = `https://ui-avatars.com/api/?name=${coin.symbol}&background=1e293b&color=f59e0b&bold=true`;
@@ -518,7 +603,21 @@
       targetExchangeBadge.innerText = coin.exchange === "upbit" ? "업비트" : "빗썸";
       targetExchangeBadge.className = `exchange-badge ${coin.exchange}`;
 
-      // 1. 시바이누 계산
+      const isSoldOut = coin.status === "sold_out";
+
+      if (isSoldOut) {
+        targetStatusPill.innerText = "물량 소진 (마감)";
+        targetStatusPill.className = "status-pill soldout";
+        poolRemainingText.innerText = "🚨 신청 폭주로 준비된 풀 전량 소진 (교환 불가)";
+        poolRemainingText.style.color = "#f87171";
+      } else {
+        targetStatusPill.innerText = "교환 가능";
+        targetStatusPill.className = "status-pill available";
+        poolRemainingText.innerText = `현재 풀 잔여 수량: ${coin.remainingStock.toLocaleString()} ${coin.symbol}`;
+        poolRemainingText.style.color = "var(--text-sub)";
+      }
+
+      // 2. 시바이누 기본 정보 계산
       shibPriceEl.innerText = formatCoinPrice(shib.price);
       shibRate24hEl.innerText = formatRateText(shib.rate24h);
       shibRate24hEl.className = `info-value ${shib.rate24h >= 0 ? 'up' : 'down'}`;
@@ -527,37 +626,61 @@
       const shibTotalVal = shibCount * shib.price;
       shibTotalValueEl.innerText = formatKRW(shibTotalVal);
 
-      // 2. 대상 코인 가격 표시
+      // 3. 대상 코인 정보 표시
       targetPriceEl.innerText = formatCoinPrice(target.price);
       targetRate24hEl.innerText = formatRateText(target.rate24h);
       targetRate24hEl.className = `info-value ${target.rate24h >= 0 ? 'up' : 'down'}`;
 
-      // 3. 코인별 맞춤 교환비율 적용
+      // 4. 수량 및 가치 환산
       swapRuleBadge.innerText = `SHIB ${coin.ratio.toLocaleString()}개 = 1개`;
-
       const targetQty = coin.ratio > 0 ? (shibCount / coin.ratio) : 0;
-      swappedQtyEl.innerText = `${new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 4 }).format(targetQty)} ${coin.symbol}`;
-
       const targetTotalVal = targetQty * target.price;
-      targetTotalValueEl.innerText = formatKRW(targetTotalVal);
 
-      // 4. 차익 및 수익률 계산
       const diffAmount = targetTotalVal - shibTotalVal;
       let profitRate = 0;
       if (shibTotalVal > 0) {
         profitRate = (diffAmount / shibTotalVal) * 100;
       }
 
-      profitRateEl.innerText = `${profitRate >= 0 ? '+' : ''}${new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 1 }).format(profitRate)}%`;
-      profitRateEl.className = `profit-rate-value ${profitRate >= 0 ? 'up' : 'down'}`;
+      // 5. 물량 소진 여부에 따른 UI 상태 전환
+      if (isSoldOut) {
+        swapBox.className = "swap-box soldout";
+        swapBoxTitleText.innerHTML = "⚠️ 교환 풀 물량 전량 소진";
+        swappedQtyEl.innerText = `0 ${coin.symbol} (교환 마감)`;
+        swappedQtyEl.style.color = "#f87171";
+        targetTotalValueEl.innerText = "0 원 (교환 불가)";
+        targetTotalValueEl.style.color = "#f87171";
+        stockStatusText.innerText = "🚨 신청 폭주로 교환 풀 소진됨 (재입고 대기 중)";
+        stockStatusText.style.color = "#f87171";
 
-      profitAmountEl.innerHTML = `
-        기존 <b>${formatKRW(shibTotalVal)}</b> ➔ 교환 후 <b>${formatKRW(targetTotalVal)}</b><br />
-        (교환 즉시 <b>${diffAmount >= 0 ? '+' : ''}${formatKRW(diffAmount)}</b> 순수익 발생)
-      `;
+        profitSummaryTitle.innerText = "기대 수익률 (현재 교환 마감됨)";
+        profitRateEl.innerText = `+${new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 1 }).format(profitRate)}% (마감)`;
+        profitRateEl.className = "profit-rate-value locked";
+        profitAmountEl.innerHTML = `
+          이 코인은 인기가 너무 많아 <b>준비된 물량이 모두 소진</b>되었습니다.<br />
+          <span style="color: #38bdf8; font-weight: 600;">👉 상단의 다른 [🟢 교환 가능] 코인을 선택해 주세요.</span>
+        `;
+      } else {
+        swapBox.className = "swap-box available";
+        swapBoxTitleText.innerHTML = "🎁 확정 교환 룰 적용";
+        swappedQtyEl.innerText = `${new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 4 }).format(targetQty)} ${coin.symbol}`;
+        swappedQtyEl.style.color = "#10b981";
+        targetTotalValueEl.innerText = formatKRW(targetTotalVal);
+        targetTotalValueEl.style.color = "#38bdf8";
+        stockStatusText.innerText = `여유 있음 (잔여: ${coin.remainingStock.toLocaleString()} ${coin.symbol})`;
+        stockStatusText.style.color = "#10b981";
+
+        profitSummaryTitle.innerText = "교환 시 폭발적 기대 수익률";
+        profitRateEl.innerText = `${profitRate >= 0 ? '+' : ''}${new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 1 }).format(profitRate)}%`;
+        profitRateEl.className = `profit-rate-value ${profitRate >= 0 ? 'up' : 'down'}`;
+        profitAmountEl.innerHTML = `
+          기존 <b>${formatKRW(shibTotalVal)}</b> ➔ 교환 후 <b>${formatKRW(targetTotalVal)}</b><br />
+          (교환 즉시 <b>${diffAmount >= 0 ? '+' : ''}${formatKRW(diffAmount)}</b> 순수익 발생)
+        `;
+      }
     }
 
-    // 1. 업비트 웹소켓 연결
+    // 업비트 웹소켓 연결
     function connectUpbitWebSocket() {
       const socket = new WebSocket("wss://api.upbit.com/websocket/v1");
       socket.binaryType = "blob";
@@ -593,7 +716,7 @@
       };
     }
 
-    // 2. 빗썸 웹소켓 연결
+    // 빗썸 웹소켓 연결
     function connectBithumbWebSocket() {
       const socket = new WebSocket("wss://pubwss.bithumb.com/pub/ws");
 
