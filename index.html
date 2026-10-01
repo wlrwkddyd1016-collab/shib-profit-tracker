@@ -12,6 +12,7 @@
       --text-main: #f8fafc;
       --text-sub: #94a3b8;
       --primary: #f59e0b;
+      --accent: #10b981;
       --up: #ef4444;
       --down: #3b82f6;
     }
@@ -190,8 +191,26 @@
       border-color: var(--primary);
     }
 
+    .swap-box {
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 14px;
+    }
+
+    .swap-box-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
     .comparison-summary {
-      margin-top: auto;
+      margin-top: 14px;
       padding: 18px;
       border-radius: 14px;
       background: linear-gradient(145deg, #1e293b, #111827);
@@ -202,13 +221,14 @@
     .comparison-diff {
       font-size: 22px;
       font-weight: 800;
-      margin-top: 6px;
+      margin-top: 4px;
     }
 
     .diff-desc {
       font-size: 13px;
       color: var(--text-sub);
       margin-top: 4px;
+      line-height: 1.4;
     }
 
     .status-badge {
@@ -223,7 +243,7 @@
 
   <div class="header">
     <h1>🐕 시바이누 자산 & 코인 실시간 수익률 비교기</h1>
-    <p>업비트 실시간 웹소켓 시세 연동</p>
+    <p>업비트 실시간 시세 연동 및 코인 갈아타기(스왑) 시뮬레이션</p>
   </div>
 
   <div class="container">
@@ -239,7 +259,7 @@
 
       <div class="field-group">
         <label class="field-label" for="shibCount">보유 수량 (개)</label>
-        <input type="number" id="shibCount" class="input-box" value="10000000" step="1000" />
+        <input type="number" id="shibCount" class="input-box" value="100000000" step="1000" />
       </div>
 
       <div class="info-box">
@@ -297,8 +317,22 @@
         </div>
       </div>
 
+      <!-- 갈아타기(스왑) 환산 정보 박스 -->
+      <div class="swap-box">
+        <div class="swap-box-title">🔄 시바이누 전량 갈아타기 시뮬레이션</div>
+        <div class="info-row">
+          <span class="info-label">전환 가능 수량</span>
+          <span class="info-value" style="color: #10b981;" id="swapQuantity">-</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">1개당 교환 비율</span>
+          <span class="info-value" id="swapRatio">-</span>
+        </div>
+      </div>
+
+      <!-- 상대 상승 격차 및 기대 수익 요약 -->
       <div class="comparison-summary">
-        <div class="field-label" style="color: #cbd5e1;">시바이누 대비 상승 격차</div>
+        <div class="field-label" style="color: #cbd5e1;">선택 기간 전 갈아탔을 때 추가 차익</div>
         <div class="comparison-diff" id="rateDiff">-</div>
         <div class="diff-desc" id="diffDescription">시세를 불러오는 중입니다...</div>
       </div>
@@ -340,6 +374,8 @@
     const targetCoinTitle = document.getElementById("targetCoinTitle");
     const targetPriceEl = document.getElementById("targetPrice");
     const targetRateEl = document.getElementById("targetRate");
+    const swapQuantityEl = document.getElementById("swapQuantity");
+    const swapRatioEl = document.getElementById("swapRatio");
     const rateDiffEl = document.getElementById("rateDiff");
     const diffDescriptionEl = document.getElementById("diffDescription");
     const updateStatusEl = document.getElementById("updateStatus");
@@ -359,7 +395,6 @@
     };
     const formatRateText = (rate) => `${rate >= 0 ? '+' : ''}${rate.toFixed(2)}%`;
 
-    // 7일/14일 캔들 데이터 (CORS 프록시 적용)
     async function getPeriodRate(market, days) {
       if (days === 0) {
         return tickerCache[market]?.rate24h ?? 0;
@@ -400,7 +435,7 @@
 
       if (!shib || !target) return;
 
-      // 시바이누 정보
+      // 1. 시바이누 정보
       shibPriceEl.innerText = formatCoinPrice(shib.price);
       shibRate24hEl.innerText = formatRateText(shib.rate24h);
       shibRate24hEl.className = `info-value ${shib.rate24h >= 0 ? 'up' : 'down'}`;
@@ -413,23 +448,41 @@
       const shibTotalVal = count * shib.price;
       shibTotalValueEl.innerText = formatKRW(shibTotalVal);
 
-      // 대상 코인 정보
+      // 2. 대상 코인 정보
       targetPriceEl.innerText = formatCoinPrice(target.price);
       const targetPeriod = await getPeriodRate(targetMarket, currentDays);
       targetRateEl.innerText = formatRateText(targetPeriod);
       targetRateEl.className = `info-value ${targetPeriod >= 0 ? 'up' : 'down'}`;
 
-      // 격차 계산
-      const diffRate = targetPeriod - shibPeriod;
-      rateDiffEl.innerText = `${diffRate >= 0 ? '+' : ''}${diffRate.toFixed(2)}%p`;
-      rateDiffEl.className = `comparison-diff ${diffRate >= 0 ? 'up' : 'down'}`;
+      // 3. 물량 갈아타기(스왑) 환산 계산
+      const swappedQty = target.price > 0 ? (shibTotalVal / target.price) : 0;
+      const formattedQty = swappedQty >= 100 
+        ? new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 2 }).format(swappedQty) 
+        : swappedQty.toFixed(4);
+      swapQuantityEl.innerText = `${formattedQty} ${targetSymbol}`;
 
-      const diffAmount = shibTotalVal * (diffRate / 100);
-      const signText = diffAmount >= 0 ? '더 높았을 금액' : '적었을 금액';
-      diffDescriptionEl.innerText = `내 자산 기준 ${formatKRW(Math.abs(diffAmount))} ${signText}`;
+      const ratio = target.price / (shib.price || 1);
+      swapRatioEl.innerText = `1 ${targetSymbol} = 약 ${new Intl.NumberFormat('ko-KR').format(Math.round(ratio))} SHIB`;
+
+      // 4. 갈아탔을 때의 차익 시뮬레이션
+      const diffRate = targetPeriod - shibPeriod;
+      
+      // 동일한 과거 시점에 시바이누 대신 갈아탔을 때의 환산 가치
+      const shibInitial = shibTotalVal / (1 + (shibPeriod / 100));
+      const targetSimulatedVal = shibInitial * (1 + (targetPeriod / 100));
+      const profitDiff = targetSimulatedVal - shibTotalVal;
+
+      rateDiffEl.innerText = `${profitDiff >= 0 ? '+' : ''}${formatKRW(profitDiff)}`;
+      rateDiffEl.className = `comparison-diff ${profitDiff >= 0 ? 'up' : 'down'}`;
+
+      const signText = profitDiff >= 0 ? '더 많은 수익' : '손실';
+      const periodLabel = currentDays === 0 ? '24시간 전' : `최근 ${currentDays}일 전`;
+      diffDescriptionEl.innerHTML = `
+        ${periodLabel}에 갈아탔다면 현재 자산: <b>${formatKRW(targetSimulatedVal)}</b><br />
+        (상승률 격차 ${diffRate >= 0 ? '+' : ''}${diffRate.toFixed(2)}%p 로 ${Math.abs(profitDiff).toLocaleString('ko-KR')}원 ${signText})
+      `;
     }
 
-    // 업비트 공식 웹소켓 연결 (CORS 제한 없음)
     function connectWebSocket() {
       const socket = new WebSocket("wss://api.upbit.com/websocket/v1");
       socket.binaryType = "blob";
