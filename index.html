@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>시바이누 자산 & 코인 실시간 수익률 비교기</title>
+  <title>시바이누 100:1 코인 교환 수익률 시뮬레이터</title>
   <style>
     :root {
       --bg: #0f172a;
@@ -50,6 +50,18 @@
     .header p {
       font-size: 14px;
       color: var(--text-sub);
+    }
+
+    .badge-rule {
+      display: inline-block;
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-top: 8px;
     }
 
     .container {
@@ -166,69 +178,47 @@
     .up { color: var(--up); }
     .down { color: var(--down); }
 
-    .period-selector {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-
-    .period-btn {
-      flex: 1;
-      background: #0f172a;
-      border: 1px solid var(--border);
-      color: var(--text-sub);
-      padding: 8px;
-      border-radius: 8px;
-      font-size: 13px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.2s;
-    }
-
-    .period-btn.active {
-      background: var(--primary);
-      color: #000;
-      border-color: var(--primary);
-    }
-
+    /* 100:1 교환 결과 박스 */
     .swap-box {
       background: rgba(16, 185, 129, 0.08);
       border: 1px solid rgba(16, 185, 129, 0.3);
       border-radius: 12px;
-      padding: 14px;
+      padding: 16px;
       margin-top: 14px;
     }
 
     .swap-box-title {
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 700;
       color: var(--accent);
-      margin-bottom: 8px;
+      margin-bottom: 12px;
       display: flex;
       align-items: center;
       gap: 6px;
     }
 
-    .comparison-summary {
-      margin-top: 14px;
-      padding: 18px;
+    /* 하단 초대형 수익률 요약 카드 */
+    .profit-summary {
+      margin-top: 16px;
+      padding: 20px;
       border-radius: 14px;
-      background: linear-gradient(145deg, #1e293b, #111827);
+      background: linear-gradient(145deg, #1e293b, #0f172a);
       border: 1px solid #475569;
       text-align: center;
     }
 
-    .comparison-diff {
-      font-size: 22px;
-      font-weight: 800;
+    .profit-rate-value {
+      font-size: 28px;
+      font-weight: 900;
+      color: var(--up);
       margin-top: 4px;
+      letter-spacing: -0.5px;
     }
 
-    .diff-desc {
-      font-size: 13px;
+    .profit-amount-text {
+      font-size: 14px;
       color: var(--text-sub);
-      margin-top: 4px;
-      line-height: 1.4;
+      margin-top: 6px;
     }
 
     .status-badge {
@@ -242,24 +232,25 @@
 <body>
 
   <div class="header">
-    <h1>🐕 시바이누 자산 & 코인 실시간 수익률 비교기</h1>
-    <p>업비트 실시간 시세 연동 및 코인 갈아타기(스왑) 시뮬레이션</p>
+    <h1>🐕 시바이누 100:1 코인 교환 수익률 계산기</h1>
+    <p>내 시바이누를 원하는 코인으로 100개당 1개 교환 시 폭발적 기대 수익률</p>
+    <div class="badge-rule">🔥 특별 혜택: 시바이누 100개 = 선택 코인 1개 무조건 교환</div>
   </div>
 
   <div class="container">
-    <!-- 왼쪽: 시바이누 보유 자산 카드 -->
+    <!-- 왼쪽: 시바이누 보유 카드 -->
     <div class="card">
       <div class="card-title-row">
         <img class="coin-logo" src="https://static.upbit.com/logos/SHIB.png" alt="SHIB 로고" />
         <div class="coin-header-info">
           <h2>시바이누 (SHIB)</h2>
-          <span>내 보유 기준 코인</span>
+          <span>내 보유 코인</span>
         </div>
       </div>
 
       <div class="field-group">
-        <label class="field-label" for="shibCount">보유 수량 (개)</label>
-        <input type="number" id="shibCount" class="input-box" value="100000000" step="1000" />
+        <label class="field-label" for="shibCount">내 시바이누 보유 수량 (개)</label>
+        <input type="number" id="shibCount" class="input-box" value="1000" min="0" step="100" />
       </div>
 
       <div class="info-box">
@@ -271,83 +262,70 @@
           <span class="info-label">당일 24시간 변동률</span>
           <span class="info-value" id="shibRate24h">-</span>
         </div>
-        <div class="info-row">
-          <span class="info-label">선택 기간 수익률</span>
-          <span class="info-value" id="shibPeriodRate">-</span>
-        </div>
         <div class="info-row" style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border);">
-          <span class="info-label">내 평가 금액</span>
-          <span class="info-value" style="font-size: 17px; color: #f59e0b;" id="shibTotalValue">0 원</span>
+          <span class="info-label">현재 내 시바이누 가치</span>
+          <span class="info-value" style="font-size: 16px; color: #f59e0b;" id="shibTotalValue">0 원</span>
         </div>
       </div>
     </div>
 
-    <!-- 오른쪽: 비교 대상 코인 선택 카드 -->
+    <!-- 오른쪽: 100:1 교환 대상 코인 카드 -->
     <div class="card">
       <div class="card-title-row">
-        <img id="targetCoinLogo" class="coin-logo" src="https://static.upbit.com/logos/BTC.png" alt="코인 로고" />
+        <img id="targetCoinLogo" class="coin-logo" src="https://static.upbit.com/logos/DOGE.png" alt="코인 로고" />
         <div class="coin-header-info">
-          <h2 id="targetCoinTitle">비트코인 (BTC)</h2>
-          <span>비교 대상 코인</span>
+          <h2 id="targetCoinTitle">도지코인 (DOGE)</h2>
+          <span>바꿔먹을 대상 코인</span>
         </div>
       </div>
 
       <div class="field-group">
-        <label class="field-label">비교 기간 선택</label>
-        <div class="period-selector">
-          <button class="period-btn active" data-days="0">24시간 (실시간)</button>
-          <button class="period-btn" data-days="7">최근 7일</button>
-          <button class="period-btn" data-days="14">최근 14일</button>
-        </div>
-      </div>
-
-      <div class="field-group">
-        <label class="field-label" for="coinSelect">비교 코인 선택 (업비트/빗썸 상장 코인)</label>
+        <label class="field-label" for="coinSelect">바꾸고 싶은 코인 선택</label>
         <select id="coinSelect" class="input-box"></select>
       </div>
 
       <div class="info-box">
         <div class="info-row">
-          <span class="info-label">선택 코인 현재가</span>
+          <span class="info-label">선택 코인 실시간 현재가</span>
           <span class="info-value" id="targetPrice">연결 중...</span>
         </div>
         <div class="info-row">
-          <span class="info-label">선택 코인 수익률</span>
-          <span class="info-value" id="targetRate">-</span>
+          <span class="info-label">당일 24시간 변동률</span>
+          <span class="info-value" id="targetRate24h">-</span>
         </div>
       </div>
 
-      <!-- 갈아타기(스왑) 환산 정보 박스 -->
+      <!-- 100:1 교환 시뮬레이션 결과 -->
       <div class="swap-box">
-        <div class="swap-box-title">🔄 시바이누 전량 갈아타기 시뮬레이션</div>
+        <div class="swap-box-title">🎁 100:1 확정 교환 결과</div>
         <div class="info-row">
-          <span class="info-label">전환 가능 수량</span>
-          <span class="info-value" style="color: #10b981;" id="swapQuantity">-</span>
+          <span class="info-label">교환되어 받는 수량 (SHIB ÷ 100)</span>
+          <span class="info-value" style="color: #10b981; font-size: 16px;" id="swappedQty">-</span>
         </div>
         <div class="info-row">
-          <span class="info-label">1개당 교환 비율</span>
-          <span class="info-value" id="swapRatio">-</span>
+          <span class="info-label">교환 후 내 총 자산 가치</span>
+          <span class="info-value" style="color: #38bdf8; font-size: 16px;" id="targetTotalValue">0 원</span>
         </div>
       </div>
 
-      <!-- 상대 상승 격차 및 기대 수익 요약 -->
-      <div class="comparison-summary">
-        <div class="field-label" style="color: #cbd5e1;">선택 기간 전 갈아탔을 때 추가 차익</div>
-        <div class="comparison-diff" id="rateDiff">-</div>
-        <div class="diff-desc" id="diffDescription">시세를 불러오는 중입니다...</div>
+      <!-- 최종 수익금 및 수익률 -->
+      <div class="profit-summary">
+        <div class="field-label" style="color: #cbd5e1; font-weight: 700;">교환 시 폭발적 기대 수익률</div>
+        <div class="profit-rate-value" id="profitRate">+0.00%</div>
+        <div class="profit-amount-text" id="profitAmount">교환 즉시 차익 계산 중...</div>
       </div>
     </div>
   </div>
 
-  <div class="status-badge" id="updateStatus">🟢 웹소켓 연결 준비 중...</div>
+  <div class="status-badge" id="updateStatus">🟢 업비트 실시간 시세 연동 중</div>
 
   <script>
     const COIN_LIST = [
+      { market: "KRW-DOGE", symbol: "DOGE", name: "도지코인" },
       { market: "KRW-BTC", symbol: "BTC", name: "비트코인" },
       { market: "KRW-ETH", symbol: "ETH", name: "이더리움" },
       { market: "KRW-SOL", symbol: "SOL", name: "솔라나" },
       { market: "KRW-XRP", symbol: "XRP", name: "리플" },
-      { market: "KRW-DOGE", symbol: "DOGE", name: "도지코인" },
       { market: "KRW-ADA", symbol: "ADA", name: "에이다" },
       { market: "KRW-AVAX", symbol: "AVAX", name: "아발란체" },
       { market: "KRW-SEI", symbol: "SEI", name: "세이" },
@@ -359,25 +337,22 @@
       { market: "KRW-SAND", symbol: "SAND", name: "샌드박스" }
     ];
 
-    let currentDays = 0;
     const tickerCache = {};
-    const candleCache = {};
 
     const shibCountInput = document.getElementById("shibCount");
     const shibPriceEl = document.getElementById("shibPrice");
     const shibRate24hEl = document.getElementById("shibRate24h");
-    const shibPeriodRateEl = document.getElementById("shibPeriodRate");
     const shibTotalValueEl = document.getElementById("shibTotalValue");
 
     const coinSelect = document.getElementById("coinSelect");
     const targetCoinLogo = document.getElementById("targetCoinLogo");
     const targetCoinTitle = document.getElementById("targetCoinTitle");
     const targetPriceEl = document.getElementById("targetPrice");
-    const targetRateEl = document.getElementById("targetRate");
-    const swapQuantityEl = document.getElementById("swapQuantity");
-    const swapRatioEl = document.getElementById("swapRatio");
-    const rateDiffEl = document.getElementById("rateDiff");
-    const diffDescriptionEl = document.getElementById("diffDescription");
+    const targetRate24hEl = document.getElementById("targetRate24h");
+    const swappedQtyEl = document.getElementById("swappedQty");
+    const targetTotalValueEl = document.getElementById("targetTotalValue");
+    const profitRateEl = document.getElementById("profitRate");
+    const profitAmountEl = document.getElementById("profitAmount");
     const updateStatusEl = document.getElementById("updateStatus");
 
     function initCoinOptions() {
@@ -395,91 +370,54 @@
     };
     const formatRateText = (rate) => `${rate >= 0 ? '+' : ''}${rate.toFixed(2)}%`;
 
-    async function getPeriodRate(market, days) {
-      if (days === 0) {
-        return tickerCache[market]?.rate24h ?? 0;
-      }
-      const cacheKey = `${market}_${days}`;
-      if (candleCache[cacheKey] !== undefined) return candleCache[cacheKey];
-
-      try {
-        const targetUrl = `https://api.upbit.com/v1/candles/days?market=${market}&count=${days + 1}`;
-        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
-        const res = await fetch(proxyUrl);
-        const candles = await res.json();
-
-        if (Array.isArray(candles) && candles.length >= days + 1) {
-          const current = candles[0].trade_price;
-          const past = candles[days].trade_price;
-          const rate = ((current - past) / past) * 100;
-          candleCache[cacheKey] = rate;
-          return rate;
-        }
-      } catch (e) {
-        console.warn(`${market} 캔들 조회 실패:`, e);
-      }
-      return tickerCache[market]?.rate24h ?? 0;
-    }
-
-    async function renderUI() {
+    function renderUI() {
       const shib = tickerCache["KRW-SHIB"];
       const targetMarket = coinSelect.value;
       const target = tickerCache[targetMarket];
 
       const targetOption = coinSelect.options[coinSelect.selectedIndex];
-      const targetSymbol = targetOption?.getAttribute("data-symbol") || "BTC";
-      const targetName = targetOption?.getAttribute("data-name") || "비트코인";
+      const targetSymbol = targetOption?.getAttribute("data-symbol") || "DOGE";
+      const targetName = targetOption?.getAttribute("data-name") || "도지코인";
 
       targetCoinLogo.src = `https://static.upbit.com/logos/${targetSymbol}.png`;
       targetCoinTitle.innerText = `${targetName} (${targetSymbol})`;
 
       if (!shib || !target) return;
 
-      // 1. 시바이누 정보
+      // 1. 시바이누 계산
       shibPriceEl.innerText = formatCoinPrice(shib.price);
       shibRate24hEl.innerText = formatRateText(shib.rate24h);
       shibRate24hEl.className = `info-value ${shib.rate24h >= 0 ? 'up' : 'down'}`;
 
-      const shibPeriod = await getPeriodRate("KRW-SHIB", currentDays);
-      shibPeriodRateEl.innerText = formatRateText(shibPeriod);
-      shibPeriodRateEl.className = `info-value ${shibPeriod >= 0 ? 'up' : 'down'}`;
-
-      const count = parseFloat(shibCountInput.value) || 0;
-      const shibTotalVal = count * shib.price;
+      const shibCount = parseFloat(shibCountInput.value) || 0;
+      const shibTotalVal = shibCount * shib.price;
       shibTotalValueEl.innerText = formatKRW(shibTotalVal);
 
       // 2. 대상 코인 정보
       targetPriceEl.innerText = formatCoinPrice(target.price);
-      const targetPeriod = await getPeriodRate(targetMarket, currentDays);
-      targetRateEl.innerText = formatRateText(targetPeriod);
-      targetRateEl.className = `info-value ${targetPeriod >= 0 ? 'up' : 'down'}`;
+      targetRate24hEl.innerText = formatRateText(target.rate24h);
+      targetRate24hEl.className = `info-value ${target.rate24h >= 0 ? 'up' : 'down'}`;
 
-      // 3. 물량 갈아타기(스왑) 환산 계산
-      const swappedQty = target.price > 0 ? (shibTotalVal / target.price) : 0;
-      const formattedQty = swappedQty >= 100 
-        ? new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 2 }).format(swappedQty) 
-        : swappedQty.toFixed(4);
-      swapQuantityEl.innerText = `${formattedQty} ${targetSymbol}`;
+      // 3. 100:1 고정 교환 룰 계산 (시바이누 100개 -> 타겟 코인 1개)
+      const targetQty = shibCount / 100;
+      swappedQtyEl.innerText = `${new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 4 }).format(targetQty)} ${targetSymbol}`;
 
-      const ratio = target.price / (shib.price || 1);
-      swapRatioEl.innerText = `1 ${targetSymbol} = 약 ${new Intl.NumberFormat('ko-KR').format(Math.round(ratio))} SHIB`;
+      // 교환 후 자산 가치
+      const targetTotalVal = targetQty * target.price;
+      targetTotalValueEl.innerText = formatKRW(targetTotalVal);
 
-      // 4. 갈아탔을 때의 차익 시뮬레이션
-      const diffRate = targetPeriod - shibPeriod;
-      
-      // 동일한 과거 시점에 시바이누 대신 갈아탔을 때의 환산 가치
-      const shibInitial = shibTotalVal / (1 + (shibPeriod / 100));
-      const targetSimulatedVal = shibInitial * (1 + (targetPeriod / 100));
-      const profitDiff = targetSimulatedVal - shibTotalVal;
+      // 4. 차익 및 수익률 계산
+      const diffAmount = targetTotalVal - shibTotalVal;
+      let profitRate = 0;
+      if (shibTotalVal > 0) {
+        profitRate = (diffAmount / shibTotalVal) * 100;
+      }
 
-      rateDiffEl.innerText = `${profitDiff >= 0 ? '+' : ''}${formatKRW(profitDiff)}`;
-      rateDiffEl.className = `comparison-diff ${profitDiff >= 0 ? 'up' : 'down'}`;
-
-      const signText = profitDiff >= 0 ? '더 많은 수익' : '손실';
-      const periodLabel = currentDays === 0 ? '24시간 전' : `최근 ${currentDays}일 전`;
-      diffDescriptionEl.innerHTML = `
-        ${periodLabel}에 갈아탔다면 현재 자산: <b>${formatKRW(targetSimulatedVal)}</b><br />
-        (상승률 격차 ${diffRate >= 0 ? '+' : ''}${diffRate.toFixed(2)}%p 로 ${Math.abs(profitDiff).toLocaleString('ko-KR')}원 ${signText})
+      // 수익률 및 차익 UI 렌더링
+      profitRateEl.innerText = `+${new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 1 }).format(profitRate)}%`;
+      profitAmountEl.innerHTML = `
+        기존 <b>${formatKRW(shibTotalVal)}</b> ➔ 교환 후 <b>${formatKRW(targetTotalVal)}</b><br />
+        (교환 즉시 <b>+${formatKRW(diffAmount)}</b> 순수익 발생)
       `;
     }
 
@@ -526,15 +464,6 @@
 
     shibCountInput.addEventListener("input", renderUI);
     coinSelect.addEventListener("change", renderUI);
-
-    document.querySelectorAll(".period-btn").forEach(btn => {
-      btn.addEventListener("click", (e) => {
-        document.querySelectorAll(".period-btn").forEach(b => b.classList.remove("active"));
-        e.target.classList.add("active");
-        currentDays = parseInt(e.target.getAttribute("data-days"), 10);
-        renderUI();
-      });
-    });
 
     initCoinOptions();
     connectWebSocket();
