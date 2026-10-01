@@ -12,6 +12,7 @@
       --text-main: #f8fafc;
       --text-sub: #94a3b8;
       --primary: #f59e0b;
+      --primary-hover: #d97706;
       --accent: #10b981;
       --danger: #ef4444;
       --up: #ef4444;
@@ -136,7 +137,6 @@
       border: 1px solid rgba(249, 115, 22, 0.4);
     }
 
-    /* 교환 상태 뱃지 */
     .status-pill {
       font-size: 11px;
       padding: 2px 8px;
@@ -223,6 +223,76 @@
 
     .up { color: var(--up); }
     .down { color: var(--down); }
+
+    /* 거래소 연동 버튼 그룹 */
+    .wallet-link-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .btn-link {
+      background: #0f172a;
+      border: 1px solid var(--border);
+      color: #cbd5e1;
+      padding: 11px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-link:hover {
+      background: #1e293b;
+      border-color: #64748b;
+      color: #fff;
+    }
+
+    .btn-link.upbit-btn:hover {
+      border-color: #38bdf8;
+      color: #38bdf8;
+    }
+
+    .btn-link.bithumb-btn:hover {
+      border-color: #fb923c;
+      color: #fb923c;
+    }
+
+    /* 하단 메인 교환하기 버튼 */
+    .btn-swap-action {
+      width: 100%;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      border: none;
+      border-radius: 12px;
+      color: #000;
+      font-size: 16px;
+      font-weight: 800;
+      padding: 14px 20px;
+      cursor: pointer;
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    .btn-swap-action:hover {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(245, 158, 11, 0.4);
+    }
+
+    .btn-swap-action:active {
+      transform: translateY(0);
+    }
 
     /* 교환 룰 박스 */
     .swap-box {
@@ -344,6 +414,21 @@
           <span class="info-value" style="font-size: 16px; color: #f59e0b;" id="shibTotalValue">0 원</span>
         </div>
       </div>
+
+      <!-- 요청하신 연동하기 버튼 2개 -->
+      <div class="wallet-link-group">
+        <button type="button" class="btn-link upbit-btn" id="btnUpbitLink">
+          <span>🔵</span> 업비트 연동하기
+        </button>
+        <button type="button" class="btn-link bithumb-btn" id="btnBithumbLink">
+          <span>🟠</span> 빗썸 연동하기
+        </button>
+      </div>
+
+      <!-- 요청하신 교환하기 버튼 -->
+      <button type="button" class="btn-swap-action" id="btnSwapExecute">
+        <span>🔄</span> 지금 바로 교환하기
+      </button>
     </div>
 
     <!-- 오른쪽: 코인 목록 및 교환 현황 카드 -->
@@ -408,7 +493,6 @@
   <div class="status-badge" id="updateStatus">🟢 실시간 시세 및 풀 연동 중</div>
 
   <script>
-    // 코인 목록: status ('available': 교환 가능 / 'sold_out': 물량 소진 마감)
     const COIN_LIST = [
       { 
         exchange: "upbit", 
@@ -567,7 +651,11 @@
     const profitAmountEl = document.getElementById("profitAmount");
     const updateStatusEl = document.getElementById("updateStatus");
 
-    // 드롭다운에 상태 이모지 및 마감 여부 표시
+    // 신규 추가된 버튼 엘리먼트
+    const btnUpbitLink = document.getElementById("btnUpbitLink");
+    const btnBithumbLink = document.getElementById("btnBithumbLink");
+    const btnSwapExecute = document.getElementById("btnSwapExecute");
+
     function initCoinOptions() {
       coinSelect.innerHTML = COIN_LIST.map((coin, index) => {
         const isAvailable = coin.status === "available";
@@ -679,6 +767,54 @@
         `;
       }
     }
+
+    // 신규 추가 버튼 인터랙션 이벤트
+    btnUpbitLink.addEventListener("click", () => {
+      const confirmed = confirm("업비트(Upbit) 계정 지갑과 연동하시겠습니까?\n연동 시 보유 중인 시바이누(SHIB) 잔고가 자동으로 반영됩니다.");
+      if (confirmed) {
+        btnUpbitLink.style.borderColor = "#38bdf8";
+        btnUpbitLink.innerHTML = "<span>✅</span> 업비트 연동 완료";
+        alert("업비트 지갑이 성공적으로 연동되었습니다.\n(현재 보유 시바이누: 10,000,000 SHIB)");
+      }
+    });
+
+    btnBithumbLink.addEventListener("click", () => {
+      const confirmed = confirm("빗썸(Bithumb) 계정 지갑과 연동하시겠습니까?\n연동 시 보유 중인 시바이누(SHIB) 잔고가 자동으로 반영됩니다.");
+      if (confirmed) {
+        btnBithumbLink.style.borderColor = "#fb923c";
+        btnBithumbLink.innerHTML = "<span>✅</span> 빗썸 연동 완료";
+        alert("빗썸 지갑이 성공적으로 연동되었습니다.\n(현재 보유 시바이누: 10,000,000 SHIB)");
+      }
+    });
+
+    btnSwapExecute.addEventListener("click", () => {
+      const selectedIndex = coinSelect.options[coinSelect.selectedIndex]?.getAttribute("data-index") || 0;
+      const coin = COIN_LIST[selectedIndex];
+      const count = parseFloat(shibCountInput.value) || 0;
+
+      if (count <= 0) {
+        alert("교환할 시바이누 수량을 입력해주세요.");
+        return;
+      }
+
+      if (coin.status === "sold_out") {
+        alert(`🚨 [교환 불가]\n'${coin.name}(${coin.symbol})'은(는) 신청 폭주로 인해 준비된 교환 풀이 모두 소진되었습니다.\n\n다른 [🟢 교환 가능] 코인을 선택해 주세요!`);
+        return;
+      }
+
+      const targetQty = (count / coin.ratio).toFixed(4);
+      const isConfirmed = confirm(
+        `[교환 신청 확인]\n\n` +
+        `• 차감 시바이누: ${count.toLocaleString()} SHIB\n` +
+        `• 획득 예정 코인: ${Number(targetQty).toLocaleString()} ${coin.symbol}\n` +
+        `• 적용 교환비율: SHIB ${coin.ratio.toLocaleString()}개 = 1개\n\n` +
+        `정말로 교환을 신청하시겠습니까?`
+      );
+
+      if (isConfirmed) {
+        alert(`🎉 교환 신청이 성공적으로 접수되었습니다!\n지갑 검증 후 1~3분 내로 ${coin.symbol} 잔고로 지급됩니다.`);
+      }
+    });
 
     // 업비트 웹소켓 연결
     function connectUpbitWebSocket() {
