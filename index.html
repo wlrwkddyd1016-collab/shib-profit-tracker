@@ -254,48 +254,56 @@
     }
 
     // 2. 단일 코인의 N일 전 대비 상승률 계산 (업비트 일봉 캔들 API 활용)
-    async function getCoinReturnRate(market, days) {
-      try {
-        // count = days + 1 만큼 일봉을 가져옴 (0번: 오늘, N번: N일 전)
-        const res = await fetch(`https://api.upbit.com/v1/candles/days?market=${market}&count=${days + 1}`);
-        const candles = await res.json();
-        
-        const todayPrice = candles[0].trade_price;
-        const pastPrice = candles[candles.length - 1].trade_price;
-        
-        // 수익률 = (현재가 - 과거가) / 과거가 * 100
-        const returnRate = ((todayPrice - pastPrice) / pastPrice) * 100;
-        return returnRate;
-      } catch (e) {
-        return -999; // 조회 실패 시 최하위 처리
-      }
+async function getCoinReturnRate(market, days) {
+  try {
+    const res = await fetch(`https://api.upbit.com/v1/candles/days?market=${market}&count=${days + 1}`);
+    if (!res.ok) return null;
+
+    const candles = await res.json();
+    if (!Array.isArray(candles) || candles.length < days + 1) return null;
+
+    const todayPrice = candles[0].trade_price;
+    const pastPrice = candles[days].trade_price;
+
+    if (!pastPrice || pastPrice <= 0) return null;
+
+    return ((todayPrice - pastPrice) / pastPrice) * 100;
+  } catch (e) {
+    console.error(`${market} 조회 실패:`, e);
+    return null;
+  }
+}
+
+// 3. 후보 코인들 중 최고 상승 코인 찾기
+async function findTopGainer() {
+  winnerTextEl.innerText = `최근 ${selectedDays}일간 최고 상승 코인 찾는 중...`;
+  let maxRate = -Infinity;
+  let topCoinName = '';
+
+  // 각 코인의 수익률을 차례대로 계산
+  for (const coin of TARGET_COINS) {
+    const rate = await getCoinReturnRate(coin.market, selectedDays);
+    if (rate !== null && rate > maxRate) {
+      maxRate = rate;
+      topCoinName = coin.name;
     }
+    // 업비트 API 초당 호출 제한(429 에러) 방지용 딜레이 (0.15초)
+    await new Promise(r => setTimeout(r, 150));
+  }
 
-    // 3. 후보 코인들 중 최고 상승 코인 찾기
-    async function findTopGainer() {
-      winnerTextEl.innerText = `최근 ${selectedDays}일간 최고 상승 코인 찾는 중...`;
+  if (maxRate === -Infinity) {
+    winnerTextEl.innerText = '데이터 조회 실패 (잠시 후 다시 시도해주세요)';
+    return;
+  }
 
-      let maxRate = -Infinity;
-      let topCoinName = '';
+  bestCoin = { name: topCoinName, rate: maxRate };
 
-      // 각 코인의 수익률을 차례대로 계산
-      for (const coin of TARGET_COINS) {
-        const rate = await getCoinReturnRate(coin.market, selectedDays);
-        if (rate > maxRate) {
-          maxRate = rate;
-          topCoinName = coin.name;
-        }
-      }
-
-      bestCoin = { name: topCoinName, rate: maxRate };
-      
-      // 결과 화면 표시
-      winnerTextEl.innerText = `🏆 최근 ${selectedDays}일 최고 급등 1위 코인`;
-      winnerNameEl.innerText = bestCoin.name;
-      winnerRateEl.innerText = `${bestCoin.rate >= 0 ? '+' : ''}${bestCoin.rate.toFixed(2)}%`;
-
-      updateCalculations();
-    }
+  // 결과 화면 표시
+  winnerTextEl.innerText = `🏆 최근 ${selectedDays}일 최고 급등 1위 코인`;
+  winnerNameEl.innerText = bestCoin.name;
+  winnerRateEl.innerText = `${bestCoin.rate >= 0 ? '+' : ''}${bestCoin.rate.toFixed(2)}%`;
+  updateCalculations();
+}
 
     // 4. 자산 및 추종 수익 계산하기
     function updateCalculations() {
