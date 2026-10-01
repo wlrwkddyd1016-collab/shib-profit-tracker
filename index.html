@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>시바이누 100:1 코인 교환 수익률 시뮬레이터</title>
+  <title>시바이누 코인 교환 수익률 시뮬레이터</title>
   <style>
     :root {
       --bg: #0f172a;
@@ -52,18 +52,6 @@
       color: var(--text-sub);
     }
 
-    .badge-rule {
-      display: inline-block;
-      background: rgba(245, 158, 11, 0.15);
-      border: 1px solid var(--primary);
-      color: var(--primary);
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 600;
-      margin-top: 8px;
-    }
-
     .container {
       width: 100%;
       max-width: 980px;
@@ -104,11 +92,46 @@
       background: #0f172a;
       padding: 2px;
       object-fit: cover;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 14px;
+      color: #f59e0b;
+      border: 1px solid var(--border);
+    }
+
+    .coin-header-info {
+      flex: 1;
     }
 
     .coin-header-info h2 {
       font-size: 18px;
       font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .exchange-badge {
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-weight: 600;
+      background: #334155;
+      color: #cbd5e1;
+    }
+
+    .exchange-badge.upbit {
+      background: rgba(14, 165, 233, 0.2);
+      color: #38bdf8;
+      border: 1px solid rgba(14, 165, 233, 0.4);
+    }
+
+    .exchange-badge.bithumb {
+      background: rgba(249, 115, 22, 0.2);
+      color: #fb923c;
+      border: 1px solid rgba(249, 115, 22, 0.4);
     }
 
     .coin-header-info span {
@@ -178,7 +201,7 @@
     .up { color: var(--up); }
     .down { color: var(--down); }
 
-    /* 100:1 교환 결과 박스 */
+    /* 맞춤 교환 룰 박스 */
     .swap-box {
       background: rgba(16, 185, 129, 0.08);
       border: 1px solid rgba(16, 185, 129, 0.3);
@@ -191,13 +214,21 @@
       font-size: 14px;
       font-weight: 700;
       color: var(--accent);
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       display: flex;
       align-items: center;
-      gap: 6px;
+      justify-content: space-between;
     }
 
-    /* 하단 초대형 수익률 요약 카드 */
+    .ratio-pill {
+      font-size: 12px;
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--primary);
+      padding: 3px 10px;
+      border-radius: 20px;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+
     .profit-summary {
       margin-top: 16px;
       padding: 20px;
@@ -219,6 +250,7 @@
       font-size: 14px;
       color: var(--text-sub);
       margin-top: 6px;
+      line-height: 1.5;
     }
 
     .status-badge {
@@ -232,9 +264,8 @@
 <body>
 
   <div class="header">
-    <h1>🐕 시바이누 100:1 코인 교환 수익률 계산기</h1>
-    <p>내 시바이누를 원하는 코인으로 100개당 1개 교환 시 폭발적 기대 수익률</p>
-    <div class="badge-rule">🔥 특별 혜택: 시바이누 100개 = 선택 코인 1개 무조건 교환</div>
+    <h1>🐕 시바이누 맞춤 교환 수익률 시뮬레이터</h1>
+    <p>업비트 & 빗썸 실시간 시세 연동 및 코인별 특수 교환비율 적용</p>
   </div>
 
   <div class="container">
@@ -243,14 +274,14 @@
       <div class="card-title-row">
         <img class="coin-logo" src="https://static.upbit.com/logos/SHIB.png" alt="SHIB 로고" />
         <div class="coin-header-info">
-          <h2>시바이누 (SHIB)</h2>
-          <span>내 보유 코인</span>
+          <h2>시바이누 (SHIB) <span class="exchange-badge upbit">업비트</span></h2>
+          <span>내 보유 기준 코인</span>
         </div>
       </div>
 
       <div class="field-group">
         <label class="field-label" for="shibCount">내 시바이누 보유 수량 (개)</label>
-        <input type="number" id="shibCount" class="input-box" value="1000" min="0" step="100" />
+        <input type="number" id="shibCount" class="input-box" value="100000" min="0" step="100" />
       </div>
 
       <div class="info-box">
@@ -269,13 +300,16 @@
       </div>
     </div>
 
-    <!-- 오른쪽: 100:1 교환 대상 코인 카드 -->
+    <!-- 오른쪽: 변경된 코인 목록 카드 -->
     <div class="card">
       <div class="card-title-row">
-        <img id="targetCoinLogo" class="coin-logo" src="https://static.upbit.com/logos/DOGE.png" alt="코인 로고" />
+        <img id="targetCoinLogo" class="coin-logo" src="https://static.upbit.com/logos/WLD.png" alt="코인 로고" />
         <div class="coin-header-info">
-          <h2 id="targetCoinTitle">도지코인 (DOGE)</h2>
-          <span>바꿔먹을 대상 코인</span>
+          <h2>
+            <span id="targetCoinTitle">월드코인 (WLD)</span>
+            <span id="targetExchangeBadge" class="exchange-badge bithumb">빗썸</span>
+          </h2>
+          <span>교환 대상 코인</span>
         </div>
       </div>
 
@@ -295,49 +329,145 @@
         </div>
       </div>
 
-      <!-- 100:1 교환 시뮬레이션 결과 -->
+      <!-- 맞춤 교환 룰 결과 -->
       <div class="swap-box">
-        <div class="swap-box-title">🎁 100:1 확정 교환 결과</div>
+        <div class="swap-box-title">
+          <span>🎁 확정 교환 룰 적용</span>
+          <span class="ratio-pill" id="swapRuleBadge">SHIB 360개 = 1개</span>
+        </div>
         <div class="info-row">
-          <span class="info-label">교환되어 받는 수량 (SHIB ÷ 100)</span>
+          <span class="info-label">교환되어 받는 수량</span>
           <span class="info-value" style="color: #10b981; font-size: 16px;" id="swappedQty">-</span>
         </div>
         <div class="info-row">
-          <span class="info-label">교환 후 내 총 자산 가치</span>
+          <span class="info-label">교환 후 총 자산 가치</span>
           <span class="info-value" style="color: #38bdf8; font-size: 16px;" id="targetTotalValue">0 원</span>
         </div>
       </div>
 
-      <!-- 최종 수익금 및 수익률 -->
+      <!-- 최종 기대 수익률 요약 -->
       <div class="profit-summary">
         <div class="field-label" style="color: #cbd5e1; font-weight: 700;">교환 시 폭발적 기대 수익률</div>
-        <div class="profit-rate-value" id="profitRate">+0.00%</div>
+        <div class="profit-rate-value" id="profitRate">+0.0%</div>
         <div class="profit-amount-text" id="profitAmount">교환 즉시 차익 계산 중...</div>
       </div>
     </div>
   </div>
 
-  <div class="status-badge" id="updateStatus">🟢 업비트 실시간 시세 연동 중</div>
+  <div class="status-badge" id="updateStatus">🟢 실시간 시세 연동 중</div>
 
   <script>
+    // 지정해주신 11개 코인 목록 및 맞춤 교환 비율
     const COIN_LIST = [
-      { market: "KRW-DOGE", symbol: "DOGE", name: "도지코인" },
-      { market: "KRW-BTC", symbol: "BTC", name: "비트코인" },
-      { market: "KRW-ETH", symbol: "ETH", name: "이더리움" },
-      { market: "KRW-SOL", symbol: "SOL", name: "솔라나" },
-      { market: "KRW-XRP", symbol: "XRP", name: "리플" },
-      { market: "KRW-ADA", symbol: "ADA", name: "에이다" },
-      { market: "KRW-AVAX", symbol: "AVAX", name: "아발란체" },
-      { market: "KRW-SEI", symbol: "SEI", name: "세이" },
-      { market: "KRW-NEAR", symbol: "NEAR", name: "니어프로토콜" },
-      { market: "KRW-SUI", symbol: "SUI", name: "수이" },
-      { market: "KRW-APT", symbol: "APT", name: "앱토스" },
-      { market: "KRW-LINK", symbol: "LINK", name: "체인링크" },
-      { market: "KRW-ETC", symbol: "ETC", name: "이더리움클래식" },
-      { market: "KRW-SAND", symbol: "SAND", name: "샌드박스" }
+      { 
+        exchange: "bithumb", 
+        market: "WLD_KRW", 
+        symbol: "WLD", 
+        name: "월드코인", 
+        ratio: 360, 
+        logo: "https://static.upbit.com/logos/WLD.png",
+        fallbackPrice: 2850
+      },
+      { 
+        exchange: "upbit", 
+        market: "KRW-DOGE", 
+        symbol: "DOGE", 
+        name: "도지코인", 
+        ratio: 100, 
+        logo: "https://static.upbit.com/logos/DOGE.png",
+        fallbackPrice: 130
+      },
+      { 
+        exchange: "bithumb", 
+        market: "SOON_KRW", 
+        symbol: "SOON", 
+        name: "쑨", 
+        ratio: 50, 
+        logo: "https://assets.coingecko.com/coins/images/38604/standard/soon.png",
+        fallbackPrice: 320
+      },
+      { 
+        exchange: "upbit", 
+        market: "KRW-ARK", 
+        symbol: "ARK", 
+        name: "아크", 
+        ratio: 120, 
+        logo: "https://static.upbit.com/logos/ARK.png",
+        fallbackPrice: 720
+      },
+      { 
+        exchange: "upbit", 
+        market: "KRW-ONDO", 
+        symbol: "ONDO", 
+        name: "온도파이낸스", 
+        ratio: 200, 
+        logo: "https://static.upbit.com/logos/ONDO.png",
+        fallbackPrice: 1150
+      },
+      { 
+        exchange: "upbit", 
+        market: "KRW-XLM", 
+        symbol: "XLM", 
+        name: "스텔라루멘", 
+        ratio: 80, 
+        logo: "https://static.upbit.com/logos/XLM.png",
+        fallbackPrice: 165
+      },
+      { 
+        exchange: "upbit", 
+        market: "KRW-ENA", 
+        symbol: "ENA", 
+        name: "에테나", 
+        ratio: 150, 
+        logo: "https://static.upbit.com/logos/ENA.png",
+        fallbackPrice: 850
+      },
+      { 
+        exchange: "bithumb", 
+        market: "0G_KRW", 
+        symbol: "0G", 
+        name: "제로지", 
+        ratio: 100, 
+        logo: "https://assets.coingecko.com/coins/images/39564/standard/0G.png",
+        fallbackPrice: 420
+      },
+      { 
+        exchange: "upbit", 
+        market: "KRW-ADA", 
+        symbol: "ADA", 
+        name: "에이다", 
+        ratio: 180, 
+        logo: "https://static.upbit.com/logos/ADA.png",
+        fallbackPrice: 620
+      },
+      { 
+        exchange: "bithumb", 
+        market: "BERA_KRW", 
+        symbol: "BERA", 
+        name: "베라체인", 
+        ratio: 400, 
+        logo: "https://assets.coingecko.com/coins/images/35091/standard/berachain.png",
+        fallbackPrice: 9500
+      },
+      { 
+        exchange: "bithumb", 
+        market: "SOMI_KRW", 
+        symbol: "SOMI", 
+        name: "솜니아", 
+        ratio: 90, 
+        logo: "https://assets.coingecko.com/coins/images/39620/standard/somnia.png",
+        fallbackPrice: 510
+      }
     ];
 
-    const tickerCache = {};
+    const tickerCache = {
+      "KRW-SHIB": { price: 0.0078, rate24h: 0 }
+    };
+
+    // 초기 캐시 세팅
+    COIN_LIST.forEach(c => {
+      tickerCache[c.market] = { price: c.fallbackPrice, rate24h: 0 };
+    });
 
     const shibCountInput = document.getElementById("shibCount");
     const shibPriceEl = document.getElementById("shibPrice");
@@ -347,17 +477,22 @@
     const coinSelect = document.getElementById("coinSelect");
     const targetCoinLogo = document.getElementById("targetCoinLogo");
     const targetCoinTitle = document.getElementById("targetCoinTitle");
+    const targetExchangeBadge = document.getElementById("targetExchangeBadge");
     const targetPriceEl = document.getElementById("targetPrice");
     const targetRate24hEl = document.getElementById("targetRate24h");
+    const swapRuleBadge = document.getElementById("swapRuleBadge");
     const swappedQtyEl = document.getElementById("swappedQty");
     const targetTotalValueEl = document.getElementById("targetTotalValue");
     const profitRateEl = document.getElementById("profitRate");
     const profitAmountEl = document.getElementById("profitAmount");
     const updateStatusEl = document.getElementById("updateStatus");
 
+    // 셀렉트 박스 생성
     function initCoinOptions() {
-      coinSelect.innerHTML = COIN_LIST.map(coin => 
-        `<option value="${coin.market}" data-symbol="${coin.symbol}" data-name="${coin.name}">${coin.name} (${coin.symbol})</option>`
+      coinSelect.innerHTML = COIN_LIST.map((coin, index) => 
+        `<option value="${coin.market}" data-index="${index}">
+          ${coin.name} (${coin.symbol}) - 1개당 SHIB ${coin.ratio}개
+        </option>`
       ).join("");
     }
 
@@ -371,18 +506,20 @@
     const formatRateText = (rate) => `${rate >= 0 ? '+' : ''}${rate.toFixed(2)}%`;
 
     function renderUI() {
-      const shib = tickerCache["KRW-SHIB"];
-      const targetMarket = coinSelect.value;
-      const target = tickerCache[targetMarket];
+      const selectedIndex = coinSelect.options[coinSelect.selectedIndex]?.getAttribute("data-index") || 0;
+      const coin = COIN_LIST[selectedIndex];
 
-      const targetOption = coinSelect.options[coinSelect.selectedIndex];
-      const targetSymbol = targetOption?.getAttribute("data-symbol") || "DOGE";
-      const targetName = targetOption?.getAttribute("data-name") || "도지코인";
+      const shib = tickerCache["KRW-SHIB"] || { price: 0.0078, rate24h: 0 };
+      const target = tickerCache[coin.market] || { price: coin.fallbackPrice, rate24h: 0 };
 
-      targetCoinLogo.src = `https://static.upbit.com/logos/${targetSymbol}.png`;
-      targetCoinTitle.innerText = `${targetName} (${targetSymbol})`;
-
-      if (!shib || !target) return;
+      // 로고 및 거래소 뱃지 업데이트
+      targetCoinLogo.src = coin.logo;
+      targetCoinLogo.onerror = () => {
+        targetCoinLogo.src = `https://ui-avatars.com/api/?name=${coin.symbol}&background=1e293b&color=f59e0b&bold=true`;
+      };
+      targetCoinTitle.innerText = `${coin.name} (${coin.symbol})`;
+      targetExchangeBadge.innerText = coin.exchange === "upbit" ? "업비트" : "빗썸";
+      targetExchangeBadge.className = `exchange-badge ${coin.exchange}`;
 
       // 1. 시바이누 계산
       shibPriceEl.innerText = formatCoinPrice(shib.price);
@@ -393,16 +530,17 @@
       const shibTotalVal = shibCount * shib.price;
       shibTotalValueEl.innerText = formatKRW(shibTotalVal);
 
-      // 2. 대상 코인 정보
+      // 2. 대상 코인 가격 표시
       targetPriceEl.innerText = formatCoinPrice(target.price);
       targetRate24hEl.innerText = formatRateText(target.rate24h);
       targetRate24hEl.className = `info-value ${target.rate24h >= 0 ? 'up' : 'down'}`;
 
-      // 3. 100:1 고정 교환 룰 계산 (시바이누 100개 -> 타겟 코인 1개)
-      const targetQty = shibCount / 100;
-      swappedQtyEl.innerText = `${new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 4 }).format(targetQty)} ${targetSymbol}`;
+      // 3. 코인별 맞춤 교환비율(ratio) 적용 계산
+      swapRuleBadge.innerText = `SHIB ${coin.ratio.toLocaleString()}개 = 1개`;
 
-      // 교환 후 자산 가치
+      const targetQty = coin.ratio > 0 ? (shibCount / coin.ratio) : 0;
+      swappedQtyEl.innerText = `${new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 4 }).format(targetQty)} ${coin.symbol}`;
+
       const targetTotalVal = targetQty * target.price;
       targetTotalValueEl.innerText = formatKRW(targetTotalVal);
 
@@ -413,24 +551,26 @@
         profitRate = (diffAmount / shibTotalVal) * 100;
       }
 
-      // 수익률 및 차익 UI 렌더링
-      profitRateEl.innerText = `+${new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 1 }).format(profitRate)}%`;
+      profitRateEl.innerText = `${profitRate >= 0 ? '+' : ''}${new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 1 }).format(profitRate)}%`;
+      profitRateEl.className = `profit-rate-value ${profitRate >= 0 ? 'up' : 'down'}`;
+
       profitAmountEl.innerHTML = `
         기존 <b>${formatKRW(shibTotalVal)}</b> ➔ 교환 후 <b>${formatKRW(targetTotalVal)}</b><br />
-        (교환 즉시 <b>+${formatKRW(diffAmount)}</b> 순수익 발생)
+        (교환 즉시 <b>${diffAmount >= 0 ? '+' : ''}${formatKRW(diffAmount)}</b> 순수익 발생)
       `;
     }
 
-    function connectWebSocket() {
+    // 1. 업비트 웹소켓 연결
+    function connectUpbitWebSocket() {
       const socket = new WebSocket("wss://api.upbit.com/websocket/v1");
       socket.binaryType = "blob";
 
+      const upbitMarkets = ["KRW-SHIB", ...COIN_LIST.filter(c => c.exchange === "upbit").map(c => c.market)];
+
       socket.onopen = () => {
-        updateStatusEl.innerText = "🟢 업비트 실시간 시세 연동 중";
-        const codes = ["KRW-SHIB", ...COIN_LIST.map(c => c.market)];
         const payload = [
-          { ticket: "shib-tracker" },
-          { type: "ticker", codes: codes }
+          { ticket: "shib-tracker-upbit" },
+          { type: "ticker", codes: upbitMarkets }
         ];
         socket.send(JSON.stringify(payload));
       };
@@ -447,18 +587,48 @@
             renderUI();
           }
         } catch (e) {
-          console.error("데이터 파싱 에러:", e);
+          console.error("업비트 파싱 에러:", e);
         }
       };
 
-      socket.onerror = (err) => {
-        console.error("웹소켓 에러:", err);
-        updateStatusEl.innerText = "⚠️ 실시간 연결 재시도 중...";
+      socket.onclose = () => {
+        setTimeout(connectUpbitWebSocket, 3000);
+      };
+    }
+
+    // 2. 빗썸 웹소켓 연결
+    function connectBithumbWebSocket() {
+      const socket = new WebSocket("wss://pubwss.bithumb.com/pub/ws");
+
+      const bithumbSymbols = COIN_LIST.filter(c => c.exchange === "bithumb").map(c => c.market);
+
+      socket.onopen = () => {
+        const payload = {
+          type: "ticker",
+          symbols: bithumbSymbols,
+          tickTypes: ["24H"]
+        };
+        socket.send(JSON.stringify(payload));
+      };
+
+      socket.onmessage = (event) => {
+        try {
+          const res = JSON.parse(event.data);
+          if (res && res.content) {
+            const sym = res.content.symbol;
+            tickerCache[sym] = {
+              price: parseFloat(res.content.closePrice),
+              rate24h: parseFloat(res.content.chgRate)
+            };
+            renderUI();
+          }
+        } catch (e) {
+          console.error("빗썸 파싱 에러:", e);
+        }
       };
 
       socket.onclose = () => {
-        updateStatusEl.innerText = "🔌 연결 재시도 중 (3초 후 연결)...";
-        setTimeout(connectWebSocket, 3000);
+        setTimeout(connectBithumbWebSocket, 3000);
       };
     }
 
@@ -466,7 +636,9 @@
     coinSelect.addEventListener("change", renderUI);
 
     initCoinOptions();
-    connectWebSocket();
+    connectUpbitWebSocket();
+    connectBithumbWebSocket();
+    renderUI();
   </script>
 </body>
 </html>
