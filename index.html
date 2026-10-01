@@ -201,7 +201,6 @@
     .up { color: var(--up); }
     .down { color: var(--down); }
 
-    /* 맞춤 교환 룰 박스 */
     .swap-box {
       background: rgba(16, 185, 129, 0.08);
       border: 1px solid rgba(16, 185, 129, 0.3);
@@ -281,7 +280,7 @@
 
       <div class="field-group">
         <label class="field-label" for="shibCount">내 시바이누 보유 수량 (개)</label>
-        <input type="number" id="shibCount" class="input-box" value="100000" min="0" step="100" />
+        <input type="number" id="shibCount" class="input-box" value="100000" min="0" step="1000" />
       </div>
 
       <div class="info-box">
@@ -303,11 +302,11 @@
     <!-- 오른쪽: 변경된 코인 목록 카드 -->
     <div class="card">
       <div class="card-title-row">
-        <img id="targetCoinLogo" class="coin-logo" src="https://static.upbit.com/logos/WLD.png" alt="코인 로고" />
+        <img id="targetCoinLogo" class="coin-logo" src="https://static.upbit.com/logos/DOGE.png" alt="코인 로고" />
         <div class="coin-header-info">
           <h2>
-            <span id="targetCoinTitle">월드코인 (WLD)</span>
-            <span id="targetExchangeBadge" class="exchange-badge bithumb">빗썸</span>
+            <span id="targetCoinTitle">도지코인 (DOGE)</span>
+            <span id="targetExchangeBadge" class="exchange-badge upbit">업비트</span>
           </h2>
           <span>교환 대상 코인</span>
         </div>
@@ -333,7 +332,7 @@
       <div class="swap-box">
         <div class="swap-box-title">
           <span>🎁 확정 교환 룰 적용</span>
-          <span class="ratio-pill" id="swapRuleBadge">SHIB 360개 = 1개</span>
+          <span class="ratio-pill" id="swapRuleBadge">SHIB 1,000개 = 1개</span>
         </div>
         <div class="info-row">
           <span class="info-label">교환되어 받는 수량</span>
@@ -357,106 +356,106 @@
   <div class="status-badge" id="updateStatus">🟢 실시간 시세 연동 중</div>
 
   <script>
-    // 지정해주신 11개 코인 목록 및 맞춤 교환 비율
+    // 11개 코인 목록 및 재설정된 교환 비율 (1,000 기준)
     const COIN_LIST = [
-      { 
-        exchange: "bithumb", 
-        market: "WLD_KRW", 
-        symbol: "WLD", 
-        name: "월드코인", 
-        ratio: 360, 
-        logo: "https://static.upbit.com/logos/WLD.png",
-        fallbackPrice: 2850
-      },
       { 
         exchange: "upbit", 
         market: "KRW-DOGE", 
         symbol: "DOGE", 
         name: "도지코인", 
-        ratio: 100, 
+        ratio: 1000, 
         logo: "https://static.upbit.com/logos/DOGE.png",
         fallbackPrice: 130
-      },
-      { 
-        exchange: "bithumb", 
-        market: "SOON_KRW", 
-        symbol: "SOON", 
-        name: "쑨", 
-        ratio: 50, 
-        logo: "https://assets.coingecko.com/coins/images/38604/standard/soon.png",
-        fallbackPrice: 320
-      },
-      { 
-        exchange: "upbit", 
-        market: "KRW-ARK", 
-        symbol: "ARK", 
-        name: "아크", 
-        ratio: 120, 
-        logo: "https://static.upbit.com/logos/ARK.png",
-        fallbackPrice: 720
-      },
-      { 
-        exchange: "upbit", 
-        market: "KRW-ONDO", 
-        symbol: "ONDO", 
-        name: "온도파이낸스", 
-        ratio: 200, 
-        logo: "https://static.upbit.com/logos/ONDO.png",
-        fallbackPrice: 1150
       },
       { 
         exchange: "upbit", 
         market: "KRW-XLM", 
         symbol: "XLM", 
         name: "스텔라루멘", 
-        ratio: 80, 
+        ratio: 1000, 
         logo: "https://static.upbit.com/logos/XLM.png",
-        fallbackPrice: 165
+        fallbackPrice: 312
       },
       { 
-        exchange: "upbit", 
-        market: "KRW-ENA", 
-        symbol: "ENA", 
-        name: "에테나", 
-        ratio: 150, 
-        logo: "https://static.upbit.com/logos/ENA.png",
-        fallbackPrice: 850
+        exchange: "bithumb", 
+        market: "SOON_KRW", 
+        symbol: "SOON", 
+        name: "쑨", 
+        ratio: 800, 
+        logo: "https://assets.coingecko.com/coins/images/38604/standard/soon.png",
+        fallbackPrice: 320
       },
       { 
         exchange: "bithumb", 
         market: "0G_KRW", 
         symbol: "0G", 
         name: "제로지", 
-        ratio: 100, 
+        ratio: 1000, 
         logo: "https://assets.coingecko.com/coins/images/39564/standard/0G.png",
         fallbackPrice: 420
-      },
-      { 
-        exchange: "upbit", 
-        market: "KRW-ADA", 
-        symbol: "ADA", 
-        name: "에이다", 
-        ratio: 180, 
-        logo: "https://static.upbit.com/logos/ADA.png",
-        fallbackPrice: 620
-      },
-      { 
-        exchange: "bithumb", 
-        market: "BERA_KRW", 
-        symbol: "BERA", 
-        name: "베라체인", 
-        ratio: 400, 
-        logo: "https://assets.coingecko.com/coins/images/35091/standard/berachain.png",
-        fallbackPrice: 9500
       },
       { 
         exchange: "bithumb", 
         market: "SOMI_KRW", 
         symbol: "SOMI", 
         name: "솜니아", 
-        ratio: 90, 
+        ratio: 1200, 
         logo: "https://assets.coingecko.com/coins/images/39620/standard/somnia.png",
         fallbackPrice: 510
+      },
+      { 
+        exchange: "upbit", 
+        market: "KRW-ADA", 
+        symbol: "ADA", 
+        name: "에이다", 
+        ratio: 1500, 
+        logo: "https://static.upbit.com/logos/ADA.png",
+        fallbackPrice: 620
+      },
+      { 
+        exchange: "upbit", 
+        market: "KRW-ARK", 
+        symbol: "ARK", 
+        name: "아크", 
+        ratio: 1800, 
+        logo: "https://static.upbit.com/logos/ARK.png",
+        fallbackPrice: 720
+      },
+      { 
+        exchange: "upbit", 
+        market: "KRW-ENA", 
+        symbol: "ENA", 
+        name: "에테나", 
+        ratio: 2000, 
+        logo: "https://static.upbit.com/logos/ENA.png",
+        fallbackPrice: 850
+      },
+      { 
+        exchange: "upbit", 
+        market: "KRW-ONDO", 
+        symbol: "ONDO", 
+        name: "온도파이낸스", 
+        ratio: 2500, 
+        logo: "https://static.upbit.com/logos/ONDO.png",
+        fallbackPrice: 1150
+      },
+      { 
+        exchange: "bithumb", 
+        market: "WLD_KRW", 
+        symbol: "WLD", 
+        name: "월드코인", 
+        ratio: 3600, 
+        logo: "https://static.upbit.com/logos/WLD.png",
+        fallbackPrice: 2850
+      },
+      { 
+        exchange: "bithumb", 
+        market: "BERA_KRW", 
+        symbol: "BERA", 
+        name: "베라체인", 
+        ratio: 5000, 
+        logo: "https://assets.coingecko.com/coins/images/35091/standard/berachain.png",
+        fallbackPrice: 9500
       }
     ];
 
@@ -464,7 +463,6 @@
       "KRW-SHIB": { price: 0.0078, rate24h: 0 }
     };
 
-    // 초기 캐시 세팅
     COIN_LIST.forEach(c => {
       tickerCache[c.market] = { price: c.fallbackPrice, rate24h: 0 };
     });
@@ -487,11 +485,11 @@
     const profitAmountEl = document.getElementById("profitAmount");
     const updateStatusEl = document.getElementById("updateStatus");
 
-    // 셀렉트 박스 생성
+    // 옵션에 코인명과 심볼만 표시
     function initCoinOptions() {
       coinSelect.innerHTML = COIN_LIST.map((coin, index) => 
         `<option value="${coin.market}" data-index="${index}">
-          ${coin.name} (${coin.symbol}) - 1개당 SHIB ${coin.ratio}개
+          ${coin.name} (${coin.symbol})
         </option>`
       ).join("");
     }
@@ -512,7 +510,6 @@
       const shib = tickerCache["KRW-SHIB"] || { price: 0.0078, rate24h: 0 };
       const target = tickerCache[coin.market] || { price: coin.fallbackPrice, rate24h: 0 };
 
-      // 로고 및 거래소 뱃지 업데이트
       targetCoinLogo.src = coin.logo;
       targetCoinLogo.onerror = () => {
         targetCoinLogo.src = `https://ui-avatars.com/api/?name=${coin.symbol}&background=1e293b&color=f59e0b&bold=true`;
@@ -535,7 +532,7 @@
       targetRate24hEl.innerText = formatRateText(target.rate24h);
       targetRate24hEl.className = `info-value ${target.rate24h >= 0 ? 'up' : 'down'}`;
 
-      // 3. 코인별 맞춤 교환비율(ratio) 적용 계산
+      // 3. 코인별 맞춤 교환비율 적용
       swapRuleBadge.innerText = `SHIB ${coin.ratio.toLocaleString()}개 = 1개`;
 
       const targetQty = coin.ratio > 0 ? (shibCount / coin.ratio) : 0;
