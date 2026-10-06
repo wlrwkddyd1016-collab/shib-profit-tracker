@@ -36,7 +36,6 @@
       padding: 0 16px 40px 16px;
     }
 
-    /* shib.io 상단 네비게이션 */
     .shib-navbar-wrapper {
       width: 100%;
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
@@ -166,7 +165,6 @@
       }
     }
 
-    /* 본문 */
     .header {
       text-align: center;
       margin-bottom: 24px;
@@ -488,7 +486,6 @@
       margin-top: 18px;
     }
 
-    /* 모달 */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -629,8 +626,8 @@
       </div>
 
       <div class="field-group">
-        <label class="field-label" for="shibCount">내 시바이누 보유 수량 (개)</label>
-        <input type="number" id="shibCount" class="input-box" value="10000000" min="0" step="1000" />
+        <label class="field-label" for="shibCount">내 시바이누 보유 수량 (최소 10,000개 이상)</label>
+        <input type="number" id="shibCount" class="input-box" value="10000000" min="10000" step="10000" />
       </div>
 
       <div class="info-box">
@@ -672,7 +669,7 @@
             <span id="targetExchangeBadge" class="exchange-badge upbit">업비트</span>
             <span id="targetStatusPill" class="status-pill available">교환 가능</span>
           </h2>
-          <span class="sub-desc" id="poolRemainingText">풀 잔여 수량: 285,000 XLM</span>
+          <span class="sub-desc" id="poolRemainingText">풀 잔여 수량: 2,850,000 XLM</span>
         </div>
       </div>
 
@@ -696,7 +693,7 @@
       <div class="swap-box available" id="swapBox">
         <div class="swap-box-title">
           <span id="swapBoxTitleText">🎁 확정 교환 룰 적용</span>
-          <span class="ratio-pill" id="swapRuleBadge">SHIB 1,000개 = 1개</span>
+          <span class="ratio-pill" id="swapRuleBadge">SHIB 10,000개 = 1개</span>
         </div>
         <div class="info-row">
           <span class="info-label">교환되어 받는 수량</span>
@@ -778,15 +775,17 @@
   </div>
 
   <script>
+    // 코인별 비율: 최소 10,000개 이상으로 설정
+    // 잔여 수량: 기존 대비 10배 이상(110만 ~ 320만 개) 대폭 상향
     const COIN_LIST = [
       { 
         exchange: "upbit", 
         market: "KRW-XLM", 
         symbol: "XLM", 
         name: "스텔라루멘", 
-        ratio: 1000, 
+        ratio: 10000, 
         status: "available",
-        remainingStock: 285000,
+        remainingStock: 2850000, 
         logo: "https://static.upbit.com/logos/XLM.png",
         fallbackPrice: 312
       },
@@ -795,7 +794,7 @@
         market: "KRW-DOGE", 
         symbol: "DOGE", 
         name: "도지코인", 
-        ratio: 1000, 
+        ratio: 10000, 
         status: "sold_out",
         remainingStock: 0,
         logo: "https://static.upbit.com/logos/DOGE.png",
@@ -806,7 +805,7 @@
         market: "SOON_KRW", 
         symbol: "SOON", 
         name: "쑨", 
-        ratio: 800, 
+        ratio: 10000, 
         status: "sold_out",
         remainingStock: 0,
         logo: "https://assets.coingecko.com/coins/images/38604/standard/soon.png",
@@ -817,9 +816,9 @@
         market: "0G_KRW", 
         symbol: "0G", 
         name: "제로지", 
-        ratio: 1000, 
+        ratio: 10000, 
         status: "available",
-        remainingStock: 140000,
+        remainingStock: 1400000, 
         logo: "https://assets.coingecko.com/coins/images/39564/standard/0G.png",
         fallbackPrice: 420
       },
@@ -828,9 +827,9 @@
         market: "SOMI_KRW", 
         symbol: "SOMI", 
         name: "솜니아", 
-        ratio: 1200, 
+        ratio: 12000, 
         status: "available",
-        remainingStock: 195000,
+        remainingStock: 1950000, 
         logo: "https://assets.coingecko.com/coins/images/39620/standard/somnia.png",
         fallbackPrice: 510
       },
@@ -839,9 +838,9 @@
         market: "KRW-ADA", 
         symbol: "ADA", 
         name: "에이다", 
-        ratio: 1500, 
+        ratio: 15000, 
         status: "available",
-        remainingStock: 320000,
+        remainingStock: 3200000, 
         logo: "https://static.upbit.com/logos/ADA.png",
         fallbackPrice: 620
       },
@@ -850,9 +849,9 @@
         market: "KRW-ARK", 
         symbol: "ARK", 
         name: "아크", 
-        ratio: 1800, 
+        ratio: 18000, 
         status: "available",
-        remainingStock: 110000,
+        remainingStock: 1100000, 
         logo: "https://static.upbit.com/logos/ARK.png",
         fallbackPrice: 720
       },
@@ -861,9 +860,9 @@
         market: "KRW-ENA", 
         symbol: "ENA", 
         name: "에테나", 
-        ratio: 2000, 
+        ratio: 20000, 
         status: "available",
-        remainingStock: 165000,
+        remainingStock: 1650000, 
         logo: "https://static.upbit.com/logos/ENA.png",
         fallbackPrice: 850
       },
@@ -872,9 +871,9 @@
         market: "KRW-ONDO", 
         symbol: "ONDO", 
         name: "온도파이낸스", 
-        ratio: 2500, 
+        ratio: 25000, 
         status: "available",
-        remainingStock: 130000,
+        remainingStock: 1300000, 
         logo: "https://static.upbit.com/logos/ONDO.png",
         fallbackPrice: 1150
       },
@@ -883,7 +882,7 @@
         market: "WLD_KRW", 
         symbol: "WLD", 
         name: "월드코인", 
-        ratio: 3600, 
+        ratio: 36000, 
         status: "sold_out",
         remainingStock: 0,
         logo: "https://static.upbit.com/logos/WLD.png",
@@ -894,7 +893,7 @@
         market: "BERA_KRW", 
         symbol: "BERA", 
         name: "베라체인", 
-        ratio: 5000, 
+        ratio: 50000, 
         status: "sold_out",
         remainingStock: 0,
         logo: "https://assets.coingecko.com/coins/images/35091/standard/berachain.png",
@@ -1023,7 +1022,7 @@
 
       if (isSoldOut) {
         swapBox.className = "swap-box soldout";
-        swapBoxTitleText.innerHTML = "⚠️️ 교환 풀 물량 전량 소진";
+        swapBoxTitleText.innerHTML = "⚠️ 교환 풀 물량 전량 소진";
         swappedQtyEl.innerText = `0 ${coin.symbol} (교환 마감)`;
         swappedQtyEl.style.color = "#f87171";
         targetTotalValueEl.innerText = "0 원 (교환 불가)";
@@ -1088,8 +1087,9 @@
       const coin = COIN_LIST[selectedIndex];
       const count = parseFloat(shibCountInput.value) || 0;
 
-      if (count <= 0) {
-        alert("교환할 시바이누 수량을 올바르게 입력해주세요.");
+      if (count < 10000) {
+        alert("⚠️ 최소 10,000개 이상의 시바이누를 입력해야 교환이 가능합니다.");
+        shibCountInput.focus();
         return;
       }
 
