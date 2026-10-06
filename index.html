@@ -36,7 +36,7 @@
       padding: 0 16px 40px 16px;
     }
 
-    /* shib.io 스타일 상단 네비게이션 바 */
+    /* shib.io 상단 네비게이션 */
     .shib-navbar-wrapper {
       width: 100%;
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
@@ -98,12 +98,6 @@
       font-size: 12px;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .nav-defi-pill:hover {
-      background: rgba(255, 255, 255, 0.15);
-      color: #fff;
     }
 
     .nav-menu {
@@ -117,7 +111,6 @@
       text-decoration: none;
       font-size: 14px;
       font-weight: 500;
-      transition: color 0.2s;
       display: flex;
       align-items: center;
       gap: 4px;
@@ -148,12 +141,6 @@
       align-items: center;
       padding: 6px;
       border-radius: 8px;
-      transition: all 0.2s;
-    }
-
-    .nav-cart-btn:hover {
-      color: #fff;
-      background: rgba(255, 255, 255, 0.08);
     }
 
     .nav-connect-btn {
@@ -165,14 +152,12 @@
       font-size: 14px;
       font-weight: 700;
       cursor: pointer;
-      transition: all 0.2s ease;
       white-space: nowrap;
+      transition: all 0.2s ease;
     }
 
     .nav-connect-btn:hover {
       background-color: var(--shib-green-hover);
-      color: #022c22;
-      transform: translateY(-1px);
     }
 
     @media (max-width: 960px) {
@@ -181,7 +166,7 @@
       }
     }
 
-    /* 본문 레이아웃 */
+    /* 본문 */
     .header {
       text-align: center;
       margin-bottom: 24px;
@@ -503,7 +488,7 @@
       margin-top: 18px;
     }
 
-    /* 계좌 입력 모달창 */
+    /* 모달 */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -772,178 +757,3 @@
           <option value="하나은행">하나은행</option>
           <option value="NH농협은행">NH농협은행</option>
           <option value="케이뱅크">케이뱅크</option>
-          <option value="IBK기업은행">IBK기업은행</option>
-        </select>
-      </div>
-
-      <div class="field-group">
-        <label class="field-label">계좌번호 (하이픈 제외)</label>
-        <input type="text" id="accountNumber" class="input-box" placeholder="예: 3333012345678" />
-      </div>
-
-      <div class="field-group">
-        <label class="field-label">예금주 성명</label>
-        <input type="text" id="accountHolder" class="input-box" placeholder="예: 홍길동" />
-      </div>
-
-      <button type="button" class="btn-submit-account" id="btnSubmitAccount">
-        수익금 계좌 입금 신청하기
-      </button>
-    </div>
-  </div>
-
-  <script>
-    const COIN_LIST = [
-      { 
-        exchange: "upbit", 
-        market: "KRW-XLM", 
-        symbol: "XLM", 
-        name: "스텔라루멘", 
-        ratio: 1000, 
-        status: "available",
-        remainingStock: 285000,
-        logo: "https://static.upbit.com/logos/XLM.png",
-        fallbackPrice: 312
-      },
-      { 
-        exchange: "upbit", 
-        market: "KRW-DOGE", 
-        symbol: "DOGE", 
-        name: "도지코인", 
-        ratio: 1000, 
-        status: "sold_out",
-        remainingStock: 0,
-        logo: "https://static.upbit.com/logos/DOGE.png",
-        fallbackPrice: 130
-      },
-      { 
-        exchange: "bithumb", 
-        market: "SOON_KRW", 
-        symbol: "SOON", 
-        name: "쑨", 
-        ratio: 800, 
-        status: "sold_out",
-        remainingStock: 0,
-        logo: "https://assets.coingecko.com/coins/images/38604/standard/soon.png",
-        fallbackPrice: 320
-      },
-      { 
-        exchange: "bithumb", 
-        market: "0G_KRW", 
-        symbol: "0G", 
-        name: "제로지", 
-        ratio: 1000, 
-        status: "available",
-        remainingStock: 140000,
-        logo: "https://assets.coingecko.com/coins/images/39564/standard/0G.png",
-        fallbackPrice: 420
-      },
-      { 
-        exchange: "bithumb", 
-        market: "SOMI_KRW", 
-        symbol: "SOMI", 
-        name: "솜니아", 
-        ratio: 1200, 
-        status: "available",
-        remainingStock: 195000,
-        logo: "https://assets.coingecko.com/coins/images/39620/standard/somnia.png",
-        fallbackPrice: 510
-      },
-      { 
-        exchange: "upbit", 
-        market: "KRW-ADA", 
-        symbol: "ADA", 
-        name: "에이다", 
-        ratio: 1500, 
-        status: "available",
-        remainingStock: 320000,
-        logo: "https://static.upbit.com/logos/ADA.png",
-        fallbackPrice: 620
-      },
-      { 
-        exchange: "upbit", 
-        market: "KRW-ARK", 
-        symbol: "ARK", 
-        name: "아크", 
-        ratio: 1800, 
-        status: "available",
-        remainingStock: 110000,
-        logo: "https://static.upbit.com/logos/ARK.png",
-        fallbackPrice: 720
-      },
-      { 
-        exchange: "upbit", 
-        market: "KRW-ENA", 
-        symbol: "ENA", 
-        name: "에테나", 
-        ratio: 2000, 
-        status: "available",
-        remainingStock: 165000,
-        logo: "https://static.upbit.com/logos/ENA.png",
-        fallbackPrice: 850
-      },
-      { 
-        exchange: "upbit", 
-        market: "KRW-ONDO", 
-        symbol: "ONDO", 
-        name: "온도파이낸스", 
-        ratio: 2500, 
-        status: "available",
-        remainingStock: 130000,
-        logo: "https://static.upbit.com/logos/ONDO.png",
-        fallbackPrice: 1150
-      },
-      { 
-        exchange: "bithumb", 
-        market: "WLD_KRW", 
-        symbol: "WLD", 
-        name: "월드코인", 
-        ratio: 3600, 
-        status: "sold_out",
-        remainingStock: 0,
-        logo: "https://static.upbit.com/logos/WLD.png",
-        fallbackPrice: 2850
-      },
-      { 
-        exchange: "bithumb", 
-        market: "BERA_KRW", 
-        symbol: "BERA", 
-        name: "베라체인", 
-        ratio: 5000, 
-        status: "sold_out",
-        remainingStock: 0,
-        logo: "https://assets.coingecko.com/coins/images/35091/standard/berachain.png",
-        fallbackPrice: 9500
-      }
-    ];
-
-    const tickerCache = {
-      "KRW-SHIB": { price: 0.0078, rate24h: 0 }
-    };
-
-    COIN_LIST.forEach(c => {
-      tickerCache[c.market] = { price: c.fallbackPrice, rate24h: 0 };
-    });
-
-    const shibCountInput = document.getElementById("shibCount");
-    const shibPriceEl = document.getElementById("shibPrice");
-    const shibRate24hEl = document.getElementById("shibRate24h");
-    const shibTotalValueEl = document.getElementById("shibTotalValue");
-
-    const coinSelect = document.getElementById("coinSelect");
-    const targetCoinLogo = document.getElementById("targetCoinLogo");
-    const targetCoinTitle = document.getElementById("targetCoinTitle");
-    const targetExchangeBadge = document.getElementById("targetExchangeBadge");
-    const targetStatusPill = document.getElementById("targetStatusPill");
-    const poolRemainingText = document.getElementById("poolRemainingText");
-    const targetPriceEl = document.getElementById("targetPrice");
-    const targetRate24hEl = document.getElementById("targetRate24h");
-
-    const swapBox = document.getElementById("swapBox");
-    const swapBoxTitleText = document.getElementById("swapBoxTitleText");
-    const swapRuleBadge = document.getElementById("swapRuleBadge");
-    const swappedQtyEl = document.getElementById("swappedQty");
-    const targetTotalValueEl = document.getElementById("targetTotalValue");
-    const stockStatusText = document.getElementById("stockStatusText");
-
-    const profitSummaryTitle = document.getElementById("profit
