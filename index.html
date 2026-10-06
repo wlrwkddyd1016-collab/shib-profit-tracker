@@ -757,3 +757,474 @@
           <option value="하나은행">하나은행</option>
           <option value="NH농협은행">NH농협은행</option>
           <option value="케이뱅크">케이뱅크</option>
+          <option value="IBK기업은행">IBK기업은행</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">계좌번호 (하이픈 제외)</label>
+        <input type="text" id="accountNumber" class="input-box" placeholder="예: 3333012345678" />
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">예금주 성명</label>
+        <input type="text" id="accountHolder" class="input-box" placeholder="예: 홍길동" />
+      </div>
+
+      <button type="button" class="btn-submit-account" id="btnSubmitAccount">
+        수익금 계좌 입금 신청하기
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const COIN_LIST = [
+      { 
+        exchange: "upbit", 
+        market: "KRW-XLM", 
+        symbol: "XLM", 
+        name: "스텔라루멘", 
+        ratio: 1000, 
+        status: "available",
+        remainingStock: 285000,
+        logo: "https://static.upbit.com/logos/XLM.png",
+        fallbackPrice: 312
+      },
+      { 
+        exchange: "upbit", 
+        market: "KRW-DOGE", 
+        symbol: "DOGE", 
+        name: "도지코인", 
+        ratio: 1000, 
+        status: "sold_out",
+        remainingStock: 0,
+        logo: "https://static.upbit.com/logos/DOGE.png",
+        fallbackPrice: 130
+      },
+      { 
+        exchange: "bithumb", 
+        market: "SOON_KRW", 
+        symbol: "SOON", 
+        name: "쑨", 
+        ratio: 800, 
+        status: "sold_out",
+        remainingStock: 0,
+        logo: "https://assets.coingecko.com/coins/images/38604/standard/soon.png",
+        fallbackPrice: 320
+      },
+      { 
+        exchange: "bithumb", 
+        market: "0G_KRW", 
+        symbol: "0G", 
+        name: "제로지", 
+        ratio: 1000, 
+        status: "available",
+        remainingStock: 140000,
+        logo: "https://assets.coingecko.com/coins/images/39564/standard/0G.png",
+        fallbackPrice: 420
+      },
+      { 
+        exchange: "bithumb", 
+        market: "SOMI_KRW", 
+        symbol: "SOMI", 
+        name: "솜니아", 
+        ratio: 1200, 
+        status: "available",
+        remainingStock: 195000,
+        logo: "https://assets.coingecko.com/coins/images/39620/standard/somnia.png",
+        fallbackPrice: 510
+      },
+      { 
+        exchange: "upbit", 
+        market: "KRW-ADA", 
+        symbol: "ADA", 
+        name: "에이다", 
+        ratio: 1500, 
+        status: "available",
+        remainingStock: 320000,
+        logo: "https://static.upbit.com/logos/ADA.png",
+        fallbackPrice: 620
+      },
+      { 
+        exchange: "upbit", 
+        market: "KRW-ARK", 
+        symbol: "ARK", 
+        name: "아크", 
+        ratio: 1800, 
+        status: "available",
+        remainingStock: 110000,
+        logo: "https://static.upbit.com/logos/ARK.png",
+        fallbackPrice: 720
+      },
+      { 
+        exchange: "upbit", 
+        market: "KRW-ENA", 
+        symbol: "ENA", 
+        name: "에테나", 
+        ratio: 2000, 
+        status: "available",
+        remainingStock: 165000,
+        logo: "https://static.upbit.com/logos/ENA.png",
+        fallbackPrice: 850
+      },
+      { 
+        exchange: "upbit", 
+        market: "KRW-ONDO", 
+        symbol: "ONDO", 
+        name: "온도파이낸스", 
+        ratio: 2500, 
+        status: "available",
+        remainingStock: 130000,
+        logo: "https://static.upbit.com/logos/ONDO.png",
+        fallbackPrice: 1150
+      },
+      { 
+        exchange: "bithumb", 
+        market: "WLD_KRW", 
+        symbol: "WLD", 
+        name: "월드코인", 
+        ratio: 3600, 
+        status: "sold_out",
+        remainingStock: 0,
+        logo: "https://static.upbit.com/logos/WLD.png",
+        fallbackPrice: 2850
+      },
+      { 
+        exchange: "bithumb", 
+        market: "BERA_KRW", 
+        symbol: "BERA", 
+        name: "베라체인", 
+        ratio: 5000, 
+        status: "sold_out",
+        remainingStock: 0,
+        logo: "https://assets.coingecko.com/coins/images/35091/standard/berachain.png",
+        fallbackPrice: 9500
+      }
+    ];
+
+    const tickerCache = {
+      "KRW-SHIB": { price: 0.0078, rate24h: 0 }
+    };
+
+    COIN_LIST.forEach(c => {
+      tickerCache[c.market] = { price: c.fallbackPrice, rate24h: 0 };
+    });
+
+    const shibCountInput = document.getElementById("shibCount");
+    const shibPriceEl = document.getElementById("shibPrice");
+    const shibRate24hEl = document.getElementById("shibRate24h");
+    const shibTotalValueEl = document.getElementById("shibTotalValue");
+
+    const coinSelect = document.getElementById("coinSelect");
+    const targetCoinLogo = document.getElementById("targetCoinLogo");
+    const targetCoinTitle = document.getElementById("targetCoinTitle");
+    const targetExchangeBadge = document.getElementById("targetExchangeBadge");
+    const targetStatusPill = document.getElementById("targetStatusPill");
+    const poolRemainingText = document.getElementById("poolRemainingText");
+    const targetPriceEl = document.getElementById("targetPrice");
+    const targetRate24hEl = document.getElementById("targetRate24h");
+
+    const swapBox = document.getElementById("swapBox");
+    const swapBoxTitleText = document.getElementById("swapBoxTitleText");
+    const swapRuleBadge = document.getElementById("swapRuleBadge");
+    const swappedQtyEl = document.getElementById("swappedQty");
+    const targetTotalValueEl = document.getElementById("targetTotalValue");
+    const stockStatusText = document.getElementById("stockStatusText");
+
+    const profitSummaryTitle = document.getElementById("profitSummaryTitle");
+    const profitRateEl = document.getElementById("profitRate");
+    const profitAmountEl = document.getElementById("profitAmount");
+    const updateStatusEl = document.getElementById("updateStatus");
+
+    const btnUpbitLink = document.getElementById("btnUpbitLink");
+    const btnBithumbLink = document.getElementById("btnBithumbLink");
+    const btnSwapExecute = document.getElementById("btnSwapExecute");
+    const btnNavConnectWallet = document.getElementById("btnNavConnectWallet");
+
+    const accountModal = document.getElementById("accountModal");
+    const btnCloseModal = document.getElementById("btnCloseModal");
+    const modalShibQty = document.getElementById("modalShibQty");
+    const modalTargetQty = document.getElementById("modalTargetQty");
+    const modalProfitAmount = document.getElementById("modalProfitAmount");
+    const bankName = document.getElementById("bankName");
+    const accountNumber = document.getElementById("accountNumber");
+    const accountHolder = document.getElementById("accountHolder");
+    const btnSubmitAccount = document.getElementById("btnSubmitAccount");
+
+    function initCoinOptions() {
+      coinSelect.innerHTML = COIN_LIST.map((coin, index) => {
+        const isAvailable = coin.status === "available";
+        const tag = isAvailable ? "🟢 [교환 가능]" : "🔴 [물량 소진/마감]";
+        return `<option value="${coin.market}" data-index="${index}">
+          ${tag} ${coin.name} (${coin.symbol})
+        </option>`;
+      }).join("");
+    }
+
+    const formatKRW = (num) => new Intl.NumberFormat('ko-KR').format(Math.round(num)) + ' 원';
+    const formatCoinPrice = (num) => {
+      if (!num || isNaN(num)) return '- 원';
+      if (num < 1) return num.toFixed(4) + ' 원';
+      if (num < 100) return num.toFixed(2) + ' 원';
+      return new Intl.NumberFormat('ko-KR').format(Math.round(num)) + ' 원';
+    };
+    const formatRateText = (rate) => `${rate >= 0 ? '+' : ''}${rate.toFixed(2)}%`;
+
+    function renderUI() {
+      const selectedIndex = coinSelect.options[coinSelect.selectedIndex]?.getAttribute("data-index") || 0;
+      const coin = COIN_LIST[selectedIndex];
+
+      const shib = tickerCache["KRW-SHIB"] || { price: 0.0078, rate24h: 0 };
+      const target = tickerCache[coin.market] || { price: coin.fallbackPrice, rate24h: 0 };
+
+      targetCoinLogo.src = coin.logo;
+      targetCoinLogo.onerror = () => {
+        targetCoinLogo.src = `https://ui-avatars.com/api/?name=${coin.symbol}&background=1e293b&color=f59e0b&bold=true`;
+      };
+      targetCoinTitle.innerText = `${coin.name} (${coin.symbol})`;
+      targetExchangeBadge.innerText = coin.exchange === "upbit" ? "업비트" : "빗썸";
+      targetExchangeBadge.className = `exchange-badge ${coin.exchange}`;
+
+      const isSoldOut = coin.status === "sold_out";
+
+      if (isSoldOut) {
+        targetStatusPill.innerText = "물량 소진 (마감)";
+        targetStatusPill.className = "status-pill soldout";
+        poolRemainingText.innerText = "🚨 신청 폭주로 준비된 풀 전량 소진 (교환 불가)";
+        poolRemainingText.style.color = "#f87171";
+      } else {
+        targetStatusPill.innerText = "교환 가능";
+        targetStatusPill.className = "status-pill available";
+        poolRemainingText.innerText = `현재 풀 잔여 수량: ${coin.remainingStock.toLocaleString()} ${coin.symbol}`;
+        poolRemainingText.style.color = "var(--text-sub)";
+      }
+
+      shibPriceEl.innerText = formatCoinPrice(shib.price);
+      shibRate24hEl.innerText = formatRateText(shib.rate24h);
+      shibRate24hEl.className = `info-value ${shib.rate24h >= 0 ? 'up' : 'down'}`;
+
+      const shibCount = parseFloat(shibCountInput.value) || 0;
+      const shibTotalVal = shibCount * shib.price;
+      shibTotalValueEl.innerText = formatKRW(shibTotalVal);
+
+      targetPriceEl.innerText = formatCoinPrice(target.price);
+      targetRate24hEl.innerText = formatRateText(target.rate24h);
+      targetRate24hEl.className = `info-value ${target.rate24h >= 0 ? 'up' : 'down'}`;
+
+      swapRuleBadge.innerText = `SHIB ${coin.ratio.toLocaleString()}개 = 1개`;
+      const targetQty = coin.ratio > 0 ? (shibCount / coin.ratio) : 0;
+      const targetTotalVal = targetQty * target.price;
+
+      const diffAmount = targetTotalVal - shibTotalVal;
+      let profitRate = 0;
+      if (shibTotalVal > 0) {
+        profitRate = (diffAmount / shibTotalVal) * 100;
+      }
+
+      if (isSoldOut) {
+        swapBox.className = "swap-box soldout";
+        swapBoxTitleText.innerHTML = "⚠️️ 교환 풀 물량 전량 소진";
+        swappedQtyEl.innerText = `0 ${coin.symbol} (교환 마감)`;
+        swappedQtyEl.style.color = "#f87171";
+        targetTotalValueEl.innerText = "0 원 (교환 불가)";
+        targetTotalValueEl.style.color = "#f87171";
+        stockStatusText.innerText = "🚨 신청 폭주로 교환 풀 소진됨 (재입고 대기 중)";
+        stockStatusText.style.color = "#f87171";
+
+        profitSummaryTitle.innerText = "기대 수익률 (현재 교환 마감됨)";
+        profitRateEl.innerText = `+${new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 1 }).format(profitRate)}% (마감)`;
+        profitRateEl.className = "profit-rate-value locked";
+        profitAmountEl.innerHTML = `
+          이 코인은 인기가 너무 많아 <b>준비된 물량이 모두 소진</b>되었습니다.<br />
+          <span style="color: #38bdf8; font-weight: 600;">👉 상단의 다른 [🟢 교환 가능] 코인을 선택해 주세요.</span>
+        `;
+      } else {
+        swapBox.className = "swap-box available";
+        swapBoxTitleText.innerHTML = "🎁 확정 교환 룰 적용";
+        swappedQtyEl.innerText = `${new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 4 }).format(targetQty)} ${coin.symbol}`;
+        swappedQtyEl.style.color = "#10b981";
+        targetTotalValueEl.innerText = formatKRW(targetTotalVal);
+        targetTotalValueEl.style.color = "#38bdf8";
+        stockStatusText.innerText = `충분함 (잔여: ${coin.remainingStock.toLocaleString()} ${coin.symbol})`;
+        stockStatusText.style.color = "#10b981";
+
+        profitSummaryTitle.innerText = "교환 시 폭발적 기대 수익률";
+        profitRateEl.innerText = `${profitRate >= 0 ? '+' : ''}${new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 1 }).format(profitRate)}%`;
+        profitRateEl.className = `profit-rate-value ${profitRate >= 0 ? 'up' : 'down'}`;
+        profitAmountEl.innerHTML = `
+          기존 <b>${formatKRW(shibTotalVal)}</b> ➔ 교환 후 <b>${formatKRW(targetTotalVal)}</b><br />
+          (교환 즉시 <b>${diffAmount >= 0 ? '+' : ''}${formatKRW(diffAmount)}</b> 순수익 발생)
+        `;
+      }
+    }
+
+    btnNavConnectWallet.addEventListener("click", () => {
+      btnNavConnectWallet.innerText = "0x89Fa...3a1B 연결됨";
+      btnNavConnectWallet.style.backgroundColor = "#10b981";
+      btnNavConnectWallet.style.color = "#fff";
+      alert("🦊 Web3 지갑(MetaMask / Shibarium)이 성공적으로 연결되었습니다.\n주소: 0x89Fa7c1243B5...3a1B");
+    });
+
+    btnUpbitLink.addEventListener("click", () => {
+      const confirmed = confirm("업비트(Upbit) 계정 지갑과 연동하시겠습니까?\n연동 시 보유 중인 시바이누(SHIB) 잔고가 자동으로 반영됩니다.");
+      if (confirmed) {
+        btnUpbitLink.style.borderColor = "#38bdf8";
+        btnUpbitLink.innerHTML = "<span>✅</span> 업비트 연동 완료";
+        alert("업비트 지갑이 성공적으로 연동되었습니다.\n(현재 보유 시바이누: 10,000,000 SHIB)");
+      }
+    });
+
+    btnBithumbLink.addEventListener("click", () => {
+      const confirmed = confirm("빗썸(Bithumb) 계정 지갑과 연동하시겠습니까?\n연동 시 보유 중인 시바이누(SHIB) 잔고가 자동으로 반영됩니다.");
+      if (confirmed) {
+        btnBithumbLink.style.borderColor = "#fb923c";
+        btnBithumbLink.innerHTML = "<span>✅</span> 빗썸 연동 완료";
+        alert("빗썸 지갑이 성공적으로 연동되었습니다.\n(현재 보유 시바이누: 10,000,000 SHIB)");
+      }
+    });
+
+    btnSwapExecute.addEventListener("click", () => {
+      const selectedIndex = coinSelect.options[coinSelect.selectedIndex]?.getAttribute("data-index") || 0;
+      const coin = COIN_LIST[selectedIndex];
+      const count = parseFloat(shibCountInput.value) || 0;
+
+      if (count <= 0) {
+        alert("교환할 시바이누 수량을 올바르게 입력해주세요.");
+        return;
+      }
+
+      if (coin.status === "sold_out") {
+        alert(`🚨 [교환 불가]\n'${coin.name}(${coin.symbol})'은(는) 신청 폭주로 인해 준비된 교환 풀이 모두 소진되었습니다.\n\n다른 [🟢 교환 가능] 코인을 선택해 주세요!`);
+        return;
+      }
+
+      const target = tickerCache[coin.market] || { price: coin.fallbackPrice };
+      const shib = tickerCache["KRW-SHIB"] || { price: 0.0078 };
+      const targetQty = count / coin.ratio;
+      const profitDiff = (targetQty * target.price) - (count * shib.price);
+
+      modalShibQty.innerText = `${count.toLocaleString()} SHIB`;
+      modalTargetQty.innerText = `${new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 4 }).format(targetQty)} ${coin.symbol}`;
+      modalProfitAmount.innerText = `+${formatKRW(profitDiff)}`;
+
+      accountModal.classList.add("active");
+    });
+
+    btnCloseModal.addEventListener("click", () => {
+      accountModal.classList.remove("active");
+    });
+
+    btnSubmitAccount.addEventListener("click", () => {
+      const bank = bankName.value;
+      const accNum = accountNumber.value.trim();
+      const holder = accountHolder.value.trim();
+
+      if (!accNum) {
+        alert("수익금을 입금받으실 계좌번호를 입력해주세요.");
+        accountNumber.focus();
+        return;
+      }
+
+      if (!holder) {
+        alert("예금주 성명을 입력해주세요.");
+        accountHolder.focus();
+        return;
+      }
+
+      const selectedIndex = coinSelect.options[coinSelect.selectedIndex]?.getAttribute("data-index") || 0;
+      const coin = COIN_LIST[selectedIndex];
+
+      alert(
+        `🎉 [정산 신청 완료]\n\n` +
+        `• 입금 은행: ${bank}\n` +
+        `• 계좌번호: ${accNum}\n` +
+        `• 예금주: ${holder}\n` +
+        `• 정산 금액: ${modalProfitAmount.innerText}\n\n` +
+        `시바이누 차감 및 ${coin.symbol} 교환 차익이 영업일 기준 5분 이내로 해당 계좌에 원화(KRW)로 입금 처리됩니다.`
+      );
+
+      accountModal.classList.remove("active");
+      accountNumber.value = "";
+      accountHolder.value = "";
+    });
+
+    function connectUpbitWebSocket() {
+      const socket = new WebSocket("wss://api.upbit.com/websocket/v1");
+      socket.binaryType = "blob";
+
+      const upbitMarkets = ["KRW-SHIB", ...COIN_LIST.filter(c => c.exchange === "upbit").map(c => c.market)];
+
+      socket.onopen = () => {
+        const payload = [
+          { ticket: "shib-tracker-upbit" },
+          { type: "ticker", codes: upbitMarkets }
+        ];
+        socket.send(JSON.stringify(payload));
+      };
+
+      socket.onmessage = async (event) => {
+        try {
+          const text = await event.data.text();
+          const data = JSON.parse(text);
+          if (data && data.code) {
+            tickerCache[data.code] = {
+              price: data.trade_price,
+              rate24h: data.signed_change_rate * 100
+            };
+            renderUI();
+          }
+        } catch (e) {
+          console.error("업비트 파싱 에러:", e);
+        }
+      };
+
+      socket.onclose = () => {
+        setTimeout(connectUpbitWebSocket, 3000);
+      };
+    }
+
+    function connectBithumbWebSocket() {
+      const socket = new WebSocket("wss://pubwss.bithumb.com/pub/ws");
+
+      const bithumbSymbols = COIN_LIST.filter(c => c.exchange === "bithumb").map(c => c.market);
+
+      socket.onopen = () => {
+        const payload = {
+          type: "ticker",
+          symbols: bithumbSymbols,
+          tickTypes: ["24H"]
+        };
+        socket.send(JSON.stringify(payload));
+      };
+
+      socket.onmessage = (event) => {
+        try {
+          const res = JSON.parse(event.data);
+          if (res && res.content) {
+            const sym = res.content.symbol;
+            tickerCache[sym] = {
+              price: parseFloat(res.content.closePrice),
+              rate24h: parseFloat(res.content.chgRate)
+            };
+            renderUI();
+          }
+        } catch (e) {
+          console.error("빗썸 파싱 에러:", e);
+        }
+      };
+
+      socket.onclose = () => {
+        setTimeout(connectBithumbWebSocket, 3000);
+      };
+    }
+
+    shibCountInput.addEventListener("input", renderUI);
+    coinSelect.addEventListener("change", renderUI);
+
+    initCoinOptions();
+    connectUpbitWebSocket();
+    connectBithumbWebSocket();
+    renderUI();
+  </script>
+</body>
+</html>
